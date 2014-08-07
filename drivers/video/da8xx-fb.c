@@ -635,6 +635,7 @@ static int lcd_cfg_frame_buffer(struct da8xx_fb_par *par, u32 width, u32 height,
 	case 2:
 	case 4:
 	case 16:
+		reg |= LCD_V2_TFT_24BPP_MODE;
 		break;
 	case 24:
 		reg |= LCD_V2_TFT_24BPP_MODE;
@@ -1478,7 +1479,7 @@ static struct lcd_ctrl_config *da8xx_fb_create_cfg(struct platform_device *dev)
 	if (lcd_revision == LCD_VERSION_1)
 		cfg->bpp = 16;
 	else
-		cfg->bpp = 32;
+		cfg->bpp = 24;
 
 	/*
 	 * For panels so far used with this LCDC, below statement is sufficient.
@@ -1486,7 +1487,7 @@ static struct lcd_ctrl_config *da8xx_fb_create_cfg(struct platform_device *dev)
 	 * with additional/modified values. Those values would have to be then
 	 * obtained from dt(requiring new dt bindings).
 	 */
-
+   // cfg->tft_alt_mode = 1;
 	cfg->panel_shade = COLOR_ACTIVE;
 
 	return cfg;
@@ -1602,6 +1603,7 @@ static int fb_probe(struct platform_device *device)
 		break;
 	}
 
+    printk("lcd_revision: %d\n",lcd_revision);
 	if (device->dev.of_node)
 		lcd_cfg = da8xx_fb_create_cfg(device);
 	else
