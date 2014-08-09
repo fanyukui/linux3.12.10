@@ -635,7 +635,7 @@ static int lcd_cfg_frame_buffer(struct da8xx_fb_par *par, u32 width, u32 height,
 	case 2:
 	case 4:
 	case 16:
-		reg |= LCD_V2_TFT_24BPP_MODE;
+		//reg |= LCD_V2_TFT_24BPP_MODE;
 		break;
 	case 24:
 		reg |= LCD_V2_TFT_24BPP_MODE;
@@ -1479,7 +1479,7 @@ static struct lcd_ctrl_config *da8xx_fb_create_cfg(struct platform_device *dev)
 	if (lcd_revision == LCD_VERSION_1)
 		cfg->bpp = 16;
 	else
-		cfg->bpp = 24;
+		cfg->bpp = 16;
 
 	/*
 	 * For panels so far used with this LCDC, below statement is sufficient.

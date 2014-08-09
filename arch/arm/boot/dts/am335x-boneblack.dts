@@ -29,6 +29,21 @@
 	status = "okay";
 };
 
+
+&tscadc {
+	status = "okay";
+	tsc {
+		ti,wires = <4>;
+		ti,x-plate-resistance = <200>;
+		ti,coordinate-readouts = <5>;
+		ti,wire-config = <0x00 0x11 0x22 0x33>;
+	};
+
+	adc {
+		ti,adc-channels = <4 5 6 7>;
+	};
+};
+
 &am33xx_pinmux {
 	nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
 		pinctrl-single,pins = <
@@ -49,6 +64,14 @@
 			0xd4 0x08       /* lcd_data13.lcd_data13, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
 			0xd8 0x08       /* lcd_data14.lcd_data14, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
 			0xdc 0x08       /* lcd_data15.lcd_data15, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+			0x3c 0x09       /* lcd_data16.lcd_data16, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+			0x38 0x09       /* lcd_data17.lcd_data17, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+			0x34 0x09       /* lcd_data18.lcd_data18, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+			0x30 0x09       /* lcd_data19.lcd_data19, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+			0x2C 0x09       /* lcd_data20.lcd_data20, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+			0x28 0x09       /* lcd_data21.lcd_data21, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+			0x24 0x09       /* lcd_data22.lcd_data22, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+			0x20 0x09       /* lcd_data23.lcd_data23, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
 			0xe0 0x00       /* lcd_vsync.lcd_vsync, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
 			0xe4 0x00       /* lcd_hsync.lcd_hsync, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
 			0xe8 0x00       /* lcd_pclk.lcd_pclk, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */

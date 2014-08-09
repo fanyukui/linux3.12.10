@@ -205,11 +205,17 @@ static struct platform_device *of_platform_device_create_pdata(
 	struct platform_device *dev;
 
 	if (!of_device_is_available(np))
+    {
+        printk("   child: %s is disable\n",np->full_name);
 		return NULL;
+    }
 
 	dev = of_device_alloc(np, bus_id, parent);
 	if (!dev)
-		return NULL;
+    {
+        printk("   child: %s alloc device failed!",np->full_name);
+    	return NULL;
+    }
 
 #if defined(CONFIG_MICROBLAZE)
 	dev->archdata.dma_mask = 0xffffffffUL;
@@ -224,6 +230,7 @@ static struct platform_device *of_platform_device_create_pdata(
 	 */
 
 	if (of_device_add(dev) != 0) {
+        printk("   child: %s add device failed!",np->full_name);
 		platform_device_put(dev);
 		return NULL;
 	}
@@ -371,7 +378,7 @@ static int of_platform_bus_create(struct device_node *bus,
 
 	/* Make sure it has a compatible property */
 	if (strict && (!of_get_property(bus, "compatible", NULL))) {
-		pr_debug("%s() - skipping %s, no compatible prop\n",
+		printk("%s() - skipping %s, no compatible prop\n",
 			 __func__, bus->full_name);
 		return 0;
 	}
@@ -382,6 +389,7 @@ static int of_platform_bus_create(struct device_node *bus,
 		platform_data = auxdata->platform_data;
 	}
 
+
 	if (of_device_is_compatible(bus, "arm,primecell")) {
 		/*
 		 * Don't return an error here to keep compatibility with older
@@ -390,13 +398,15 @@ static int of_platform_bus_create(struct device_node *bus,
 		of_amba_device_create(bus, bus_id, platform_data, parent);
 		return 0;
 	}
-
 	dev = of_platform_device_create_pdata(bus, bus_id, platform_data, parent);
 	if (!dev || !of_match_node(matches, bus))
+    {
+        printk("   child:%s match node failed!\n",bus->full_name);
 		return 0;
+    }
 
 	for_each_child_of_node(bus, child) {
-		pr_debug("   create child: %s\n", child->full_name);
+		printk("   create child: %s\n", child->full_name);
 		rc = of_platform_bus_create(child, matches, lookup, &dev->dev, strict);
 		if (rc) {
 			of_node_put(child);
@@ -477,6 +487,7 @@ int of_platform_populate(struct device_node *root,
 		return -EINVAL;
 
 	for_each_child_of_node(root, child) {
+        printk("child name: %s\n",child->name);
 		rc = of_platform_bus_create(child, matches, lookup, parent, true);
 		if (rc)
 			break;
