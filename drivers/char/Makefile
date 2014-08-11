@@ -63,3 +63,5 @@ js-rtc-y = rtc.o
 
 obj-$(CONFIG_TILE_SROM)		+= tile-srom.o
 obj-$(CONFIG_ROBOT_LED)   += szhc_leds_jixieshou.o
+obj-$(CONFIG_ROBOT_BACKLIGHT)   += szhc_backlight_jixieshou.o
+obj-$(CONFIG_ROBOT_BEYPAD)   += szhc_keypad_jixieshou.o

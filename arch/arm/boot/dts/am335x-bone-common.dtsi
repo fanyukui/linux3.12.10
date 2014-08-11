@@ -116,7 +116,6 @@
 				0x14c (PIN_INPUT_PULLDOWN | MUX_MODE7)
 			>;
 		};
-
 		mmc1_pins_default: pinmux_mmc1_pins {
 			pinctrl-single,pins = <
 				0x0F0 (PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_dat3.mmc0_dat3 */
