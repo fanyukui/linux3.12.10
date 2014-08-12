@@ -41,6 +41,8 @@ config KEYBOARD_ADP5589
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called adp5589-keys.
+	  
+
 
 config KEYBOARD_AMIGA
 	tristate "Amiga keyboard"
