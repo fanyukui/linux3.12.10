@@ -33,6 +33,15 @@ config ROBOT_BEYPAD
 	  kind of kernel debugging operations.
 	  When in doubt, say "N".
 	  
+config ROBOT_PULLEY
+	tristate "robot pulley device support"
+	default m
+	help
+	  Say Y here if you want to support the /dev/kmem device. The
+	  /dev/kmem device is rarely used, but can be used for certain
+	  kind of kernel debugging operations.
+	  When in doubt, say "N".	  
+	  
 config DEVKMEM
 	bool "/dev/kmem virtual device support"
 	default y

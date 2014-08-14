@@ -296,6 +296,7 @@ static int __init szhc_keypad_init(void)
 static void __exit szhc_keypad_exit(void)
 {
     /* Ð¶ÔØÇý¶¯³ÌÐò */
+  	del_timer(&s_timer);
     input_unregister_device(button_dev);
 
 }
