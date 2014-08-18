@@ -378,7 +378,7 @@ static int of_platform_bus_create(struct device_node *bus,
 
 	/* Make sure it has a compatible property */
 	if (strict && (!of_get_property(bus, "compatible", NULL))) {
-		printk("%s() - skipping %s, no compatible prop\n",
+		pr_debug("%s() - skipping %s, no compatible prop\n",
 			 __func__, bus->full_name);
 		return 0;
 	}
@@ -401,12 +401,12 @@ static int of_platform_bus_create(struct device_node *bus,
 	dev = of_platform_device_create_pdata(bus, bus_id, platform_data, parent);
 	if (!dev || !of_match_node(matches, bus))
     {
-        printk("   child:%s match node failed!\n",bus->full_name);
+        pr_debug("   child:%s match node failed!\n",bus->full_name);
 		return 0;
     }
 
 	for_each_child_of_node(bus, child) {
-		printk("   create child: %s\n", child->full_name);
+		pr_debug("   create child: %s\n", child->full_name);
 		rc = of_platform_bus_create(child, matches, lookup, &dev->dev, strict);
 		if (rc) {
 			of_node_put(child);
@@ -487,7 +487,6 @@ int of_platform_populate(struct device_node *root,
 		return -EINVAL;
 
 	for_each_child_of_node(root, child) {
-        printk("child name: %s\n",child->name);
 		rc = of_platform_bus_create(child, matches, lookup, parent, true);
 		if (rc)
 			break;
