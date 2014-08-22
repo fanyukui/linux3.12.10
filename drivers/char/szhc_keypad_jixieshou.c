@@ -80,7 +80,20 @@ void initPinOut(unsigned int gpio,bool isOut,char *label)
 irqreturn_t irq_handler(int irqno, void *dev_id)
 
 {
-    printk("GPIO_TO_PIN(2,4) :%d\n",gpio_get_value(GPIO_TO_PIN(2,4)));
+ //   printk("GPIO_TO_PIN(2,4) :%d\n",gpio_get_value(GPIO_TO_PIN(2,4)));
+
+    if(gpio_get_value(GPIO_TO_PIN(2,4)))
+    {
+  			input_report_key(button_dev,pulley[1], true);
+  			input_report_key(button_dev,pulley[1], false);
+
+    }
+    else{
+  			input_report_key(button_dev,pulley[2], true);
+  			input_report_key(button_dev,pulley[2], false);
+
+
+    }
     return IRQ_HANDLED;
 }
 
@@ -96,8 +109,10 @@ void initConfig(void)
 
     /*滚轮 输入*/
     initPinOut(GPIO_TO_PIN(2,1),false,"pulley");
-    initPinOut(GPIO_TO_PIN(2,3),false,"pulley");
+    initPinOut(GPIO_TO_PIN(2,3),false,"pulley");  /*中断口*/
     initPinOut(GPIO_TO_PIN(2,4),false,"pulley");
+
+    gpio_set_debounce(GPIO_TO_PIN(2,3),25);
 
     /*申请中断*/
     irq = gpio_to_irq(GPIO_TO_PIN(2, 3));
@@ -177,18 +192,22 @@ void timer_handler(unsigned long arg)
     //printk("value: %d\n",value);
     if(value == 6){
   			input_report_key(button_dev,knob[0], true);
-  			input_report_key(button_dev,knob[0], false);
+   			input_report_key(button_dev,knob[1], false);
+   			input_report_key(button_dev,knob[2], false);
             input_sync(button_dev);
     }
     else if(value == 3){
   			input_report_key(button_dev,knob[1], true);
-  			input_report_key(button_dev,knob[1], false);
+  			input_report_key(button_dev,knob[2], false);
+   			input_report_key(button_dev,knob[0], false);
+
             input_sync(button_dev);
 
     }
     else if(value == 1){
   			input_report_key(button_dev,knob[2], true);
-  			input_report_key(button_dev,knob[2], false);
+  			input_report_key(button_dev,knob[0], false);
+   			input_report_key(button_dev,knob[1], false);
             input_sync(button_dev);
 
     }
@@ -197,9 +216,12 @@ void timer_handler(unsigned long arg)
     if(gpio_get_value(GPIO_TO_PIN(2,1)) == 0)
     {
   			input_report_key(button_dev,pulley[0], true);
-  			input_report_key(button_dev,pulley[0], false);
             input_sync(button_dev);
 
+    }
+    else{
+  			input_report_key(button_dev,pulley[0], false);
+            input_sync(button_dev);
     }
 
     /*处理普通按键*/
@@ -246,21 +268,6 @@ void initTimer(void)
 
 
 
-
-static int szhc_keypad_open(struct inode *inode, struct file *file)
-{
-    printk("szhc_leds_open \n");
-    return 0;
-}
-
-
-
-static struct file_operations szhc_keypad_fops =
-{
-    .owner = THIS_MODULE,
-    .open = szhc_keypad_open,
-    //.compat_ioctl = szhc_leds_ioctl,
-};
 static char __initdata banner[] = "SZHCAM335x  Keypad, (c) 2014 SZHC\n";
 //static struct class *keypad_class;
 
