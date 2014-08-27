@@ -558,7 +558,7 @@ config TOUCHSCREEN_TI_AM335X_TSC
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called ti_am335x_tsc.
-
+	  
 config TOUCHSCREEN_ATMEL_TSADCC
 	tristate "Atmel Touchscreen Interface"
 	depends on ARCH_AT91

@@ -120,7 +120,7 @@ void initConfig(void)
         printk("GPIO_TO_PIN(2, 3) irq  failed !\n");
         ret = irq;
     }
-    printk("irq = %d\n", irq);
+    //printk("irq = %d\n", irq);
     ret = request_irq(irq,
                     irq_handler,
                     IRQF_TRIGGER_FALLING | IRQF_SHARED,

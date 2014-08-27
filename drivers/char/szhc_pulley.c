@@ -156,13 +156,15 @@ static irqreturn_t timer7_irq(int irq, void *dev)
 
 static void initConfig(void)
 {
+
+     /*≈‰÷√øÿ÷∆ƒ£øÈ
     unsigned int err;
     void __iomem *p = ioremap_nocache(AM335X_CTRL_BASE ,SZ_4K);
     if(!p){
         printk("ioremap failed\n");
         return;
     }
-    MUX_EVM();  /*≈‰÷√øÿ÷∆ƒ£øÈ*/
+    MUX_EVM();*/
 
 
 
@@ -172,13 +174,13 @@ static void initConfig(void)
     initPinOutput(GPIO_TO_PIN(2,4),false,"pulley");
 
 
-    printk("gpio2[1]: 0x%x\n",MUX_READ(CONTROL_PADCONF_GPMC_CLK));
-    printk("timer6_mux3: 0x%x\n",MUX_READ(CONTROL_PADCONF_GPMC_WEN));
-    printk("timer7_mux3: 0x%x\n",MUX_READ(CONTROL_PADCONF_GPMC_OEN_REN));
+  //printk("gpio2[1]: 0x%x\n",MUX_READ(CONTROL_PADCONF_GPMC_CLK));
+  //printk("timer6_mux3: 0x%x\n",MUX_READ(CONTROL_PADCONF_GPMC_WEN));
+  //  printk("timer7_mux3: 0x%x\n",MUX_READ(CONTROL_PADCONF_GPMC_OEN_REN));
 
-    iounmap(p);
+  //  iounmap(p);
 
-    /*”≥…‰timerµÿ÷∑*/
+    /*”≥…‰timerµÿ÷∑
     timer_dev.t6 = ioremap_nocache(DMTIMER6 ,SZ_4K);
     if(!timer_dev.t6){
         printk("ioremap t6  failed\n");
@@ -191,10 +193,12 @@ static void initConfig(void)
     }
 
     WRITE_TIMER_REG(TCLR,ST | AR | TCM | GPO_CFG);
-
+    */
    //printk("WRITE_TIMER_REG\n");
    // printk("readl: 0x%x\n",readl(timer_dev.t7 + TCLR));
 
+
+/*
 	err = request_irq(TIMER6_IRQ + 16, timer6_irq,
 			  IRQF_TRIGGER_FALLING | IRQF_TIMER ,"timer6",NULL);
 	if (err) {
@@ -207,17 +211,21 @@ static void initConfig(void)
         printk("failed to allocate irq7.\n");
         return;
 	}
+*/
 
 }
 
 
 void timer_handler(unsigned long arg)
 {
-   // printk("GPIO_TO_PIN(2,1):  %d\n",gpio_get_value(GPIO_TO_PIN(2,1)));
+    printk("GPIO_TO_PIN(2,1):  %d\n",gpio_get_value(GPIO_TO_PIN(2,1)));
+    printk("GPIO_TO_PIN(2,3):  %d\n",gpio_get_value(GPIO_TO_PIN(2,3)));
+    printk("GPIO_TO_PIN(2,4):  %d\n",gpio_get_value(GPIO_TO_PIN(2,4)));
+
    // printk("TIMER6_READ_VALUE: %d\n",TIMER6_READ_VALUE());
   //  printk("TIMER7_READ_VALUE: %d\n",TIMER7_READ_VALUE());
 	unsigned long j = jiffies;
-	s_timer.expires = j + HZ/100 ;
+	s_timer.expires = j + HZ/10 ;
 	add_timer(&s_timer);
 
 }
