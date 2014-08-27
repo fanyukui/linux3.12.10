@@ -208,7 +208,7 @@ static struct omap_dm_timer *_omap_dm_timer_request(int req_type, void *data)
 	}
 
 	spin_lock_irqsave(&dm_timer_lock, flags);
-	list_for_each_entry(t, &omap_timer_list, node) {
+    list_for_each_entry(t, &omap_timer_list, node) {
 		if (t->reserved)
 			continue;
 
@@ -317,6 +317,22 @@ struct omap_dm_timer *omap_dm_timer_request_by_node(struct device_node *np)
 	return _omap_dm_timer_request(REQUEST_BY_NODE, np);
 }
 EXPORT_SYMBOL_GPL(omap_dm_timer_request_by_node);
+
+
+struct device_node   *omap_dm_timer_request_by_name(char *name)
+{
+    struct omap_dm_timer *timer;
+    list_for_each_entry(timer, &omap_timer_list, node) {
+        if(strncmp(timer->pdev->name,name,strlen(name)) == 0)
+        {
+            return timer->pdev->dev.of_node;
+        }
+    }
+    return NULL;
+
+}
+EXPORT_SYMBOL_GPL(omap_dm_timer_request_by_name);
+
 
 int omap_dm_timer_free(struct omap_dm_timer *timer)
 {
@@ -641,6 +657,30 @@ int omap_dm_timer_set_pwm(struct omap_dm_timer *timer, int def_on,
 	return 0;
 }
 EXPORT_SYMBOL_GPL(omap_dm_timer_set_pwm);
+
+int omap_dm_timer_set_input(struct omap_dm_timer *timer, int mode)
+{
+	u32 l;
+
+	if (unlikely(!timer))
+		return -EINVAL;
+
+	omap_dm_timer_enable(timer);
+	l = omap_dm_timer_read_reg(timer, OMAP_TIMER_CTRL_REG);
+    /*clear timer input mode*/
+    l &= ~(0x03 << 8);
+    /*enable timer input  set mode*/
+    l |= (OMAP_TIMER_CTRL_GPOCFG | (mode & (0x03 << 8)));
+	omap_dm_timer_write_reg(timer, OMAP_TIMER_CTRL_REG, l);
+
+	/* Save the context */
+	timer->context.tclr = l;
+	omap_dm_timer_disable(timer);
+	return 0;
+
+}
+EXPORT_SYMBOL_GPL(omap_dm_timer_set_input);
+
 
 int omap_dm_timer_set_prescaler(struct omap_dm_timer *timer, int prescaler)
 {
