@@ -33,6 +33,7 @@
 #define ADCFSM_STEPID		0x10
 #define SEQ_SETTLE		275
 #define MAX_12BIT		((1 << 12) - 1)
+#define MAX_DIFF    10
 
 static const int config_pins[] = {
 	STEPCONFIG_XPP,
@@ -40,6 +41,7 @@ static const int config_pins[] = {
 	STEPCONFIG_YPP,
 	STEPCONFIG_YNN,
 };
+static unsigned int old_z = 0;;
 
 struct titsc {
 	struct input_dev	*input;
@@ -256,6 +258,8 @@ static irqreturn_t titsc_irq(int irq, void *dev)
 	struct input_dev *input_dev = ts_dev->input;
 	unsigned int status, irqclr = 0;
 	unsigned int x = 0, y = 0;
+    unsigned int diff;
+
 	unsigned int z1, z2, z;
 	unsigned int fsm;
 
@@ -263,7 +267,6 @@ static irqreturn_t titsc_irq(int irq, void *dev)
 	if (status & IRQENB_FIFO0THRES) {
 
 		titsc_read_coordinates(ts_dev, &x, &y, &z1, &z2);
-
 		if (ts_dev->pen_down && z1 != 0 && z2 != 0) {
 			/*
 			 * Calculate pressure using formula
@@ -275,13 +278,15 @@ static irqreturn_t titsc_irq(int irq, void *dev)
 			z *= ts_dev->x_plate_resistance;
 			z /= z2;
 			z = (z + 2047) >> 12;
-
-			if (z <= MAX_12BIT) {
-				input_report_abs(input_dev, ABS_X, x);
-				input_report_abs(input_dev, ABS_Y, y);
-				input_report_abs(input_dev, ABS_PRESSURE, z);
-				input_report_key(input_dev, BTN_TOUCH, 1);
-				input_sync(input_dev);
+            diff = abs(old_z -z);
+           // printk("x: %d y:%d z:%d old_z: %d diff: %d\n",x,y,z,old_z,diff);
+            if (z <= MAX_12BIT && (old_z == 0 || diff <= MAX_DIFF)) {
+                old_z = z;
+			    input_report_abs(input_dev, ABS_X, x);
+		    	input_report_abs(input_dev, ABS_Y, y);
+		    	input_report_abs(input_dev, ABS_PRESSURE, z);
+		    	input_report_key(input_dev, BTN_TOUCH, 1);
+		    	input_sync(input_dev);
 			}
 		}
 		irqclr |= IRQENB_FIFO0THRES;
@@ -298,6 +303,8 @@ static irqreturn_t titsc_irq(int irq, void *dev)
 		/* Pen up event */
 		fsm = titsc_readl(ts_dev, REG_ADCFSM);
 		if (fsm == ADCFSM_STEPID) {
+  		    old_z = 0;
+            //printk("pen up event\n");
 			ts_dev->pen_down = false;
 			input_report_key(input_dev, BTN_TOUCH, 0);
 			input_report_abs(input_dev, ABS_PRESSURE, 0);
@@ -309,7 +316,7 @@ static irqreturn_t titsc_irq(int irq, void *dev)
 	}
 
 	if (status & IRQENB_HW_PEN) {
-
+//        printk("IRQENB_HW_PEN event\n");
 		titsc_writel(ts_dev, REG_IRQWAKEUP, 0x00);
 		titsc_writel(ts_dev, REG_IRQCLR, IRQENB_HW_PEN);
 	}
