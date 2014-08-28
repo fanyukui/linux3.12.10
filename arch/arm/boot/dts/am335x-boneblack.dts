@@ -86,9 +86,9 @@
 };
 
 &i2c0 {
-	hdmi1: hdmi@70 {
-	      compatible = "nxp,tda998x";
-	      reg = <0x70>;
+	rtc@68 {
+	      compatible = "ds1338";
+	      reg = <0x68>;
 	};
 };
 
