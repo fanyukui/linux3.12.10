@@ -29,6 +29,13 @@
 #include <linux/of_device.h>
 
 #include <linux/mfd/ti_am335x_tscadc.h>
+#include <linux/gpio.h>
+
+
+#define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
+#define Beep_On()   do {gpio_set_value(GPIO_TO_PIN(1,19), 1); } while(0)
+#define Beep_Off()  do {gpio_set_value(GPIO_TO_PIN(1,19), 0); } while(0)
+
 
 #define ADCFSM_STEPID		0x10
 #define SEQ_SETTLE		275
@@ -320,6 +327,12 @@ static irqreturn_t titsc_irq(int irq, void *dev)
 		titsc_writel(ts_dev, REG_IRQWAKEUP, 0x00);
 		titsc_writel(ts_dev, REG_IRQCLR, IRQENB_HW_PEN);
 	}
+    if(ts_dev->pen_down){
+        Beep_On();
+    }
+    else{
+        Beep_Off();
+    }
 
 	if (irqclr) {
 		titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);

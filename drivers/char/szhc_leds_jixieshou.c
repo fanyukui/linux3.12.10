@@ -35,7 +35,7 @@ void initPin(unsigned int bank,unsigned int gpio)
     result = gpio_request(GPIO_TO_PIN(bank,gpio), "Leds");//usr1
     if (result != 0)
         printk("gpio_request(%d_%d) failed!\n",bank,gpio);
-    result = gpio_direction_output(GPIO_TO_PIN(bank,gpio), 1);
+    result = gpio_direction_output(GPIO_TO_PIN(bank,gpio), 0); //À­µÍ
     if (result != 0)
         printk("gpio_direction(%d_%d) failed!\n",bank,gpio);
 }

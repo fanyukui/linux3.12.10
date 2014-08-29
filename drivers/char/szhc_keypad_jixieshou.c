@@ -42,6 +42,9 @@ unsigned int pulley[3] = {90,91,92};
 static struct timer_list s_timer;
 static struct input_dev  *button_dev; /*输入设备结构体*/
 
+#define Beep_On()   do {gpio_set_value(GPIO_TO_PIN(1,19), 1); } while(0)
+#define Beep_Off()  do {gpio_set_value(GPIO_TO_PIN(1,19), 0); } while(0)
+
 void initKeyPad()
 {
     int start = 1,i,j;
@@ -64,7 +67,7 @@ void initPinOut(unsigned int gpio,bool isOut,char *label)
     if (result != 0)
         printk("gpio_request(%d) failed!\n",gpio);
     if(isOut){
-        result = gpio_direction_output(gpio,1);
+        result = gpio_direction_output(gpio,0);  //beep 拉低
         if (result != 0)
             printk("gpio_direction(%d) failed!\n",gpio);
 
@@ -102,6 +105,10 @@ void initConfig(void)
 {
     int row,column;
     int irq = 0,ret = 0;
+
+    /*蜂鸣器 输出*/
+  	initPinOut(GPIO_TO_PIN(1,19),true,"Beep");
+
     /*旋钮 输入*/
 	initPinOut(GPIO_TO_PIN(0,13),false,"Knob"); //停止
 	initPinOut(GPIO_TO_PIN(2,5),false,"Knob");  //自动 低电平有效
@@ -230,24 +237,22 @@ void timer_handler(unsigned long arg)
         downColumn(col);
         for(row=0;row<RowCount;row++)
         {
-            while(gpio_get_value(rowtable[row]) == 0)
+            if(gpio_get_value(rowtable[row]) == 0)
             {
                 pressed = 1;
-              //  printk("row: %d\tcolumn:%d\tkey value: %d \t pressed!\n",row,col,keypad[row][col]);
-      			input_report_key(button_dev,keypad[row][col], pressed);
-                input_sync(button_dev);
-            }
-            if(pressed){
-                pressed = 0;
-             //   printk("row: %d\tcolumn:%d\tkey value: %d \t released!\n",row,col,keypad[row][col]);
-      			input_report_key(button_dev,keypad[row][col], pressed);
+      			input_report_key(button_dev,keypad[row][col], 1);
+                //   printk("row: %d\tcolumn:%d\tkey value: %d \t released!\n",row,col,keypad[row][col]);
+      			input_report_key(button_dev,keypad[row][col], 0);
                 input_sync(button_dev);
             }
 
         }
 
     }
-
+    if(pressed)
+        Beep_On();
+    else
+        Beep_Off();
 
 	unsigned long j = jiffies;
 	s_timer.expires = j + HZ/100 ;
