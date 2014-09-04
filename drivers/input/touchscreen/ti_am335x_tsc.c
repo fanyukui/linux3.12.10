@@ -327,12 +327,12 @@ static irqreturn_t titsc_irq(int irq, void *dev)
 		titsc_writel(ts_dev, REG_IRQWAKEUP, 0x00);
 		titsc_writel(ts_dev, REG_IRQCLR, IRQENB_HW_PEN);
 	}
-    if(ts_dev->pen_down){
+    /*if(ts_dev->pen_down){
         Beep_On();
     }
     else{
         Beep_Off();
-    }
+    } */
 
 	if (irqclr) {
 		titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
