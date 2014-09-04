@@ -42,6 +42,7 @@
 #include <linux/lcm.h>
 #include <video/of_display_timing.h>
 #include <video/da8xx-fb.h>
+#include <linux/gpio.h>
 
 #ifdef CONFIG_FB_DA8XX_TDA998X
 #include <video/da8xx-tda998x-hdmi.h>
@@ -1529,6 +1530,7 @@ static struct fb_videomode *da8xx_fb_get_videomode(struct platform_device *dev)
 	return lcdc_info;
 }
 
+
 static int fb_probe(struct platform_device *device)
 {
 	struct da8xx_lcdc_platform_data *fb_pdata =
@@ -1745,7 +1747,6 @@ static int fb_probe(struct platform_device *device)
 		goto err_cpu_freq;
 	}
 #endif
-
 	return 0;
 
 #ifdef CONFIG_CPU_FREQ
