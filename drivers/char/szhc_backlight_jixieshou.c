@@ -42,7 +42,7 @@ void initPin(unsigned int bank,unsigned int gpio)
     result = gpio_request(GPIO_TO_PIN(bank,gpio), "BackLight");//usr1
     if (result != 0)
         printk("gpio_request(%d_%d) failed!\n",bank,gpio);
-    result = gpio_direction_output(GPIO_TO_PIN(bank,gpio), 0);
+    result = gpio_direction_output(GPIO_TO_PIN(bank,gpio), 1);
     if (result != 0)
         printk("gpio_direction(%d_%d) failed!\n",bank,gpio);
 }
@@ -104,7 +104,7 @@ static int __init szhc_lcd_init(void)
      printk(banner);
 
      /*初始化LCD配置*/
-     initLcdConfig();
+     //initLcdConfig();
 
 	/* 注册字符设备驱动程序
 	 * 参数为主设备号、设备名字、file_operations 结构;

@@ -36,7 +36,7 @@ static int buzzer_open(struct inode *inode,struct file *file){
 
 static int buzzer_ioctl(struct file *file,unsigned int cmd,unsigned long arg){
 
-	switch(cmd){
+	switch(arg){
 		case IOCTL_BUZZER_OFF:
 			gpio_free(GPIO_TO_PIN(1,19));
 			printk("**BUZZER_OFF(drivers/char/buzzer.c)**\n");
