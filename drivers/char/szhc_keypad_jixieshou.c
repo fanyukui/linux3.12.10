@@ -35,6 +35,9 @@ unsigned int rowtable[RowCount];
 
 unsigned int knob[3] = {80,81,82};
 unsigned int pulley[3] = {90,91,92};
+static int rowNum,colomnNum;
+
+static int pressed;
 
 
 #define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
@@ -189,7 +192,6 @@ void downColumn(int index)
 void timer_handler(unsigned long arg)
 {
     int col = 0,row = 0;
-    int pressed = 0;
 
     /*¥¶¿Ì–˝≈•*/
   	int p1 = gpio_get_value(GPIO_TO_PIN(0,13));
@@ -237,25 +239,32 @@ void timer_handler(unsigned long arg)
         downColumn(col);
         for(row=0;row<RowCount;row++)
         {
-            if(gpio_get_value(rowtable[row]) == 0)
+            if(gpio_get_value(rowtable[row]) == 0 && !pressed)
             {
                 pressed = 1;
+                Beep_On();
       			input_report_key(button_dev,keypad[row][col], 1);
-                //   printk("row: %d\tcolumn:%d\tkey value: %d \t released!\n",row,col,keypad[row][col]);
-      			input_report_key(button_dev,keypad[row][col], 0);
-                input_sync(button_dev);
+                rowNum = row;
+                colomnNum = col;
+                goto finished;
+                //printk("row: %d\tcolumn:%d\tkey value: %d \t pressed!\n",row,col,keypad[row][col]);
+                //input_sync(button_dev);
             }
-
+            if(col == colomnNum && gpio_get_value(rowtable[rowNum]))
+            {
+                //printk("row: %d\tcolumn:%d\tkey value: %d \t released!\n",row,col,keypad[row][col]);
+                pressed = 0;
+                Beep_Off();
+      			input_report_key(button_dev,keypad[row][col], 0);
+            }
         }
 
     }
-    if(pressed)
-        Beep_On();
-    else
-        Beep_Off();
 
-	unsigned long j = jiffies;
-	s_timer.expires = j + HZ/100 ;
+finished:
+    input_sync(button_dev);
+  	unsigned long j = jiffies;
+	s_timer.expires = j + HZ/50 ;
 	add_timer(&s_timer);
 }
 
