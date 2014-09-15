@@ -76,6 +76,15 @@
 			>;
 		};
 		
+		spi1_pins: pinmux_spi1_pins {
+			pinctrl-single,pins = <
+				0x190 (PIN_INPUT_PULLUP | MUX_MODE3)    /* spi1_clk.spi1_clk */
+				0x194 (PIN_INPUT_PULLUP | MUX_MODE3)    /* spi1_d0.spi1_d0 */
+				0x198 (PIN_INPUT_PULLUP | MUX_MODE3)    /* spi1_d1.spi1_d1 */
+				0x19c (PIN_INPUT_PULLUP | MUX_MODE3)    /* spi1_cs0.spi1_cs0 */
+			>;
+		};
+		
 		clkout2_pin: pinmux_clkout2_pin {
 			pinctrl-single,pins = <
 				0x1b4 (PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
@@ -216,6 +225,31 @@
 			default-brightness-level = <8>;
 	  };
 	  
+		spi1: spi@481a0000 {
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi1_pins>;
+
+			status = "okay";
+			tsc2046@0 {
+				reg = <0>;	/* CS0 */
+				compatible = "ti,tsc2046";
+				interrupt-parent = <&gpio3>;
+				interrupts = <20 0>;	/* BOOT6 / GPIO 20 */
+				spi-max-frequency = <1000000>;
+				pendown-gpio = <&gpio3 20 0>;
+				vcc-supply = <&vcc_fixed>;
+
+				ti,x-min = /bits/ 16 <0>;
+				ti,x-max = /bits/ 16 <8000>;
+				ti,y-min = /bits/ 16 <0>;
+				ti,y-max = /bits/ 16 <4800>;
+				ti,x-plate-ohms = /bits/ 16 <40>;
+				ti,pressure-max = /bits/ 16 <255>;
+	
+				linux,wakeup;
+			};
+		};
+		
 		musb: usb@47400000 {
 			status = "okay";
 
@@ -288,6 +322,15 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 	};
+	
+	vcc_fixed: fixedregulator@0 {
+		compatible = "regulator-fixed";
+		regulator-name = "vadc_fixed";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	
 };
 
 /include/ "tps65217.dtsi"
