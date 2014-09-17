@@ -27,6 +27,7 @@
 
 #define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
 
+static bool isBeep;
 
 static int buzzer_open(struct inode *inode,struct file *file){
 	printk("**buzzer_open(drivers/char/buzzer.c)**\n");
@@ -34,19 +35,27 @@ static int buzzer_open(struct inode *inode,struct file *file){
 }
 
 
-static int buzzer_ioctl(struct file *file,unsigned int cmd,unsigned long arg){
+static long buzzer_ioctl(struct file *file,unsigned int cmd,unsigned long arg){
 
 	switch(arg){
 		case IOCTL_BUZZER_OFF:
-			gpio_free(GPIO_TO_PIN(1,19));
-			printk("**BUZZER_OFF(drivers/char/buzzer.c)**\n");
+            if(isBeep)
+            {
+                isBeep = false;
+       			gpio_free(GPIO_TO_PIN(1,19));
+      			printk("**BUZZER_OFF(drivers/char/buzzer.c)**\n");
+            }
 			return 0;
 
 		case IOCTL_BUZZER_ON:
-			gpio_request(GPIO_TO_PIN(1,19),"Beep");
-            gpio_direction_output(GPIO_TO_PIN(1,19),0);  //beep À­µÍ
-			printk("**BUZZER_ON(drivers/char/buzzer.c)**\n");
-			return 0;
+            if(!isBeep)
+            {
+                isBeep = true;
+    			gpio_request(GPIO_TO_PIN(1,19),"Beep");
+                gpio_direction_output(GPIO_TO_PIN(1,19),0);  //beep À­µÍ
+    			printk("**BUZZER_ON(drivers/char/buzzer.c)**\n");
+            }
+            return 0;
 		default:
 			return -EINVAL;
 	}
@@ -64,6 +73,7 @@ static struct class *buzzer_class;
 
 static int __init buzzer_init(void){
 	int ret;
+    isBeep = true;
 	printk(banner);
 	ret = register_chrdev(BUZZER_MAJOR,DEVICE_NAME,&buzzer_fops);
 	if(ret<0){
@@ -79,7 +89,6 @@ static int __init buzzer_init(void){
 
 	device_create(buzzer_class,NULL,MKDEV(BUZZER_MAJOR,0),NULL,DEVICE_NAME);
 
-	printk(DEVICE_NAME" initialized\n");
 	return 0;
 }
 

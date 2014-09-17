@@ -14,15 +14,6 @@ config ROBOT_LED
 	  /dev/kmem device is rarely used, but can be used for certain
 	  kind of kernel debugging operations.
 	  When in doubt, say "N".
-	  
-config ROBOT_BACKLIGHT
-	tristate "robot lcd backlight support"
-	default m
-	help
-	  Say Y here if you want to support the /dev/kmem device. The
-	  /dev/kmem device is rarely used, but can be used for certain
-	  kind of kernel debugging operations.
-	  When in doubt, say "N".
 
 config ROBOT_BEYPAD
 	tristate "robot keypad device support"
