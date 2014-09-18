@@ -48,7 +48,7 @@ static struct input_dev  *button_dev; /*输入设备结构体*/
 #define Beep_On()   do {gpio_set_value(GPIO_TO_PIN(1,19), 1); } while(0)
 #define Beep_Off()  do {gpio_set_value(GPIO_TO_PIN(1,19), 0); } while(0)
 
-void initKeyPad()
+void initKeyPad(void)
 {
     int start = 1,i,j;
     for(i=0;i<RowCount;i++)
@@ -113,7 +113,7 @@ void initConfig(void)
   	initPinOut(GPIO_TO_PIN(1,19),true,"Beep");
 
     /*旋钮 输入*/
-	initPinOut(GPIO_TO_PIN(0,13),false,"Knob"); //停止
+	initPinOut(GPIO_TO_PIN(2,0),false,"Knob"); //停止
 	initPinOut(GPIO_TO_PIN(2,5),false,"Knob");  //自动 低电平有效
 	initPinOut(GPIO_TO_PIN(2,2),false,"Knob");  //手动
 
@@ -140,14 +140,14 @@ void initConfig(void)
         printk("request_irq() failed ! %d\n", ret);
     }
     /*初始化 rowtable*/
-    rowtable[0] = GPIO_TO_PIN(3,14);
-    rowtable[1] = GPIO_TO_PIN(3,15);
-    rowtable[2] = GPIO_TO_PIN(3,16);
-    rowtable[3] = GPIO_TO_PIN(3,17);
+    rowtable[0] = GPIO_TO_PIN(3,8);
+    rowtable[1] = GPIO_TO_PIN(3,7);
+    rowtable[2] = GPIO_TO_PIN(1,29);
+    rowtable[3] = GPIO_TO_PIN(3,21);
     rowtable[4] = GPIO_TO_PIN(3,18);
-  //  rowtable[5] = GPIO_TO_PIN(3,19);
-   // rowtable[6] = GPIO_TO_PIN(3,20);
-   // rowtable[7] = GPIO_TO_PIN(3,21);
+  //  rowtable[5] = GPIO_TO_PIN(0,19);
+   // rowtable[6] = GPIO_TO_PIN(0,18);
+   // rowtable[7] = GPIO_TO_PIN(3,13);
     /*行 输入*/
     for(row=0;row<RowCount;row++)
     {
