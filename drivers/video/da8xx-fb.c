@@ -1470,18 +1470,24 @@ static struct fb_ops da8xx_fb_ops = {
 static struct lcd_ctrl_config *da8xx_fb_create_cfg(struct platform_device *dev)
 {
 	struct lcd_ctrl_config *cfg;
+	int ret;
 
 	cfg = devm_kzalloc(&dev->dev, sizeof(struct fb_videomode), GFP_KERNEL);
 	if (!cfg)
 		return NULL;
 
-	/* default values */
-
+	struct device_node *np = dev->dev.of_node;
+    ret = of_property_read_u32(np, "bits-per-pixel", &cfg->bpp);
+	if (ret) {
+		dev_err(dev, "Failed to read bpp from DT\n");
+		return -EINVAL;
+	}
+	/* default values
 	if (lcd_revision == LCD_VERSION_1)
 		cfg->bpp = 16;
 	else
 		cfg->bpp = 16;
-
+    */
 	/*
 	 * For panels so far used with this LCDC, below statement is sufficient.
 	 * For new panels, if required, struct lcd_ctrl_cfg fields to be updated

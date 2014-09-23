@@ -97,32 +97,36 @@
 	pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
 	pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
 	status = "okay";
+	bits-per-pixel = <16>;
 	display-timings {
-		640x480P60 {
-		   clock-frequency = <23370000>;
-		   hactive = <640>;
-		   vactive = <480>;
-		   hfront-porch = <8>;
-		   hback-porch = <127>;
-		   hsync-len = <4>;
-		   vback-porch = <14>;
-		   vfront-porch = <2>;
-		   vsync-len = <4>;
-		   hsync-active = <1>;
-		   vsync-active = <1>;
-		};
-		800x600P60 {
+		native-mode = <&timing0>;
+		timing0: 640x480p16  {
+		   /* 640x480p16 */
 		   clock-frequency = <25200000>;
 		   hactive = <640>;
 		   vactive = <480>;
 		   hfront-porch = <16>;
-		   hback-porch = <48>;
-		   hsync-len = <96>;
-		   vback-porch = <31>;
-		   vfront-porch = <11>;
+		   hback-porch = <134>;
+		   hsync-len = <10>;
+		   vback-porch = <11>;
+		   vfront-porch = <32>;
 		   vsync-len = <2>;
-		   hsync-active = <0>;
-		   vsync-active = <0>;
+		   hsync-active = <1>;
+		   vsync-active = <1>;
+		};
+		timing1: 800x600p24{
+		   /* 800x600p24 */
+		   clock-frequency = <40000000>;
+		   hactive = <800>;
+		   vactive = <600>;
+		   hfront-porch = <210>;
+		   hback-porch = <46>;
+		   hsync-len = <10>;
+		   vback-porch = <23>;
+		   vfront-porch = <12>;
+		   vsync-len = <2>;
+		   hsync-active = <1>;
+		   vsync-active = <1>;
 		};
 	};
 };
