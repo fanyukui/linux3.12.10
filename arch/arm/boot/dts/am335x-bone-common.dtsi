@@ -218,12 +218,12 @@
 			default-brightness-level = <8>;
 	  };
 	  
-	  beep {
+	  /*beep {
 			compatible = "pwm-backlight";
 			pwms = <&ehrpwm1 1 50000 0>;
 			brightness-levels = <0 51 53 56 62 75 101 152 255>;
 			default-brightness-level = <8>;
-	  };
+	  };*/
 	  
 		spi1: spi@481a0000 {
 			pinctrl-names = "default";
