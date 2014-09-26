@@ -61,18 +61,14 @@ static int szhc_leds_open(struct inode *inode, struct file *file)
     return 0;
 }
 
-static int szhc_leds_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+static long szhc_leds_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
-    printk("**szhc_leds_ioctl(arg=%d,cmd=%d)(/drivers/char/szhc_leds_jixieshou.c )**\n",arg,cmd);
-
-    (arg & 8)? gpio_set_value(led_table[3], IOCTL_LED_ON)
-             : gpio_set_value(led_table[3], IOCTL_LED_OFF);
-    (arg & 4)? gpio_set_value(led_table[2], IOCTL_LED_ON)
-             : gpio_set_value(led_table[2],IOCTL_LED_OFF);
-    (arg & 2)?  gpio_set_value(led_table[1], IOCTL_LED_ON)
-              :  gpio_set_value(led_table[1], IOCTL_LED_OFF);
-    (arg & 1)?  gpio_set_value(led_table[0], IOCTL_LED_ON)
-              :  gpio_set_value(led_table[0], IOCTL_LED_OFF);
+    //printk("**szhc_leds_ioctl(arg=%u,cmd=%u)(/drivers/char/szhc_leds_jixieshou.c )**\n",arg,cmd);
+    int i;
+    for(i = 0; i < LED_NUMS;i ++)    {
+         (arg & (1 << i))  ?  gpio_set_value(led_table[i], IOCTL_LED_ON)
+                    :  gpio_set_value(led_table[i], IOCTL_LED_OFF);
+    }
     return 0;
 }
 
@@ -80,7 +76,7 @@ static struct file_operations szhc_leds_fops =
 {
     .owner = THIS_MODULE,
     .open = szhc_leds_open,
-    .unlocked_ioctl = szhc_leds_ioctl,
+    .unlocked_ioctl = szhc_leds_ioctl
     //.compat_ioctl = szhc_leds_ioctl,
 };
 static char __initdata banner[] = "SZHCAM335x  LEDS, (c) 2014 SZHC\n";

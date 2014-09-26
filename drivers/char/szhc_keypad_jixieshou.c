@@ -60,6 +60,8 @@ static int pressed;
 #define CONTROL_PADCONF_EMU1                      0x09E8
 #define CONTROL_PADCONF_MCASP0_ACLKR              0x09A0
 #define CONTROL_PADCONF_XDMA_EVENT_INTR0          0x09B0
+#define CONTROL_PADCONF_USB0_DRVVBUS              0x0A1C
+#define CONTROL_PADCONF_USB1_DRVVBUS              0x0A34
 
 
 /*模式配置*/
@@ -76,7 +78,9 @@ static int pressed;
     MUX_VAL(CONTROL_PADCONF_EMU0, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */\
     MUX_VAL(CONTROL_PADCONF_EMU1, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */\
     MUX_VAL(CONTROL_PADCONF_MCASP0_ACLKR, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */\
-    MUX_VAL(CONTROL_PADCONF_XDMA_EVENT_INTR0, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */
+    MUX_VAL(CONTROL_PADCONF_XDMA_EVENT_INTR0, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */  \
+    MUX_VAL(CONTROL_PADCONF_USB0_DRVVBUS, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */   \
+    MUX_VAL(CONTROL_PADCONF_USB1_DRVVBUS, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */
 
 
 static struct timer_list s_timer;
@@ -151,7 +155,7 @@ void initConfig(void)
     void __iomem *p = ioremap_nocache(AM335X_CTRL_BASE ,SZ_4K);
     if(!p){
         printk("ioremap failed\n");
-        return -1;
+        return;
     }
     MUX_EVM();
     /*printk("CONTROL_PADCONF_GPMC_CSN0: 0x%x\n",MUX_READ(CONTROL_PADCONF_GPMC_CSN0));
@@ -300,14 +304,14 @@ void timer_handler(unsigned long arg)
       			input_report_key(button_dev,keypad[row][col], 1);
                 rowNum = row;
                 colomnNum = col;
-                printk("row: %d\tcolumn:%d\tkey value: %d \t pressed!\n",row,col,keypad[row][col]);
+                //printk("row: %d\tcolumn:%d\tkey value: %d \t pressed!\n",row,col,keypad[row][col]);
                 goto finished;
                 //input_sync(button_dev);
             }
             if(col == colomnNum && row == rowNum &&
                 gpio_get_value(rowtable[rowNum]) && pressed)
             {
-                printk("row: %d\tcolumn:%d\tkey value: %d \t released!\n",row,col,keypad[row][col]);
+               // printk("row: %d\tcolumn:%d\tkey value: %d \t released!\n",row,col,keypad[row][col]);
                 pressed = 0;
                 Beep_Off();
       			input_report_key(button_dev,keypad[row][col], 0);
@@ -318,8 +322,7 @@ void timer_handler(unsigned long arg)
 
 finished:
     input_sync(button_dev);
-  	unsigned long j = jiffies;
-	s_timer.expires = j + HZ/50 ;
+	s_timer.expires = jiffies + HZ/50 ;
 	add_timer(&s_timer);
 }
 
@@ -342,7 +345,7 @@ static char __initdata banner[] = "SZHCAM335x  Keypad, (c) 2014 SZHC\n";
 
 static int __init szhc_keypad_init(void)
 {
-    int error;
+    int error,i,j;
     printk(banner);
 
     /*初始化KeyPad配置*/
@@ -365,7 +368,6 @@ static int __init szhc_keypad_init(void)
     //button_dev->evbit[0] = BIT_MASK(EV_KEY);  //支持EV_KEY事件
     //button_dev->evbit[0] = BIT_MASK(EV_REP);  //支持EV_REP事件
 
-    int i,j;
     for(i=0; i<RowCount;i++)
     {
         for(j=0;j<ColumnCount;j++)
@@ -405,11 +407,12 @@ static int __init szhc_keypad_init(void)
 
 static void __exit szhc_keypad_exit(void)
 {
+    int irq ;
     /* 卸载驱动程序 */
   	del_timer(&s_timer);
     input_unregister_device(button_dev);
     /* free gpio */
-    int irq = gpio_to_irq(GPIO_TO_PIN(2, 3));
+    irq = gpio_to_irq(GPIO_TO_PIN(2, 3));
     free_irq(irq,irq_handler) ;
     //gpio_free(GPIO_TO_PIN(1, 27));
 }

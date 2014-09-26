@@ -65,7 +65,7 @@ static long buzzer_ioctl(struct file *file,unsigned int cmd,unsigned long arg){
 static struct file_operations buzzer_fops={
 	.owner	=	THIS_MODULE,
 	.open = buzzer_open,
-	.unlocked_ioctl = buzzer_ioctl,
+	.unlocked_ioctl = buzzer_ioctl
 };
 
 static char __initdata banner[] = "SZHC 2014 Beep Driver\n";
