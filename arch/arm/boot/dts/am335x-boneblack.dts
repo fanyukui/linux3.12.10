@@ -47,7 +47,7 @@
 &am33xx_pinmux {
 	nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
 		pinctrl-single,pins = <
-			0x1b0 0x03      /* xdma_event_intr0, OMAP_MUX_MODE3 | AM33XX_PIN_OUTPUT */
+			/*0x1b0 0x03       xdma_event_intr0, OMAP_MUX_MODE3 | AM33XX_PIN_OUTPUT */
 			0xa0 0x08       /* lcd_data0.lcd_data0, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
 			0xa4 0x08       /* lcd_data1.lcd_data1, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
 			0xa8 0x08       /* lcd_data2.lcd_data2, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
@@ -80,7 +80,7 @@
 	};
 	nxp_hdmi_bonelt_off_pins: nxp_hdmi_bonelt_off_pins {
 		pinctrl-single,pins = <
-			0x1b0 0x03      /* xdma_event_intr0, OMAP_MUX_MODE3 | AM33XX_PIN_OUTPUT */
+			/*0x1b0 0x03       xdma_event_intr0, OMAP_MUX_MODE3 | AM33XX_PIN_OUTPUT */
 		>;
 	};
 };
@@ -95,7 +95,7 @@
 &lcdc {
 	pinctrl-names = "default", "off";
 	pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
-	pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
+	/*pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;*/
 	status = "okay";
 	bits-per-pixel = <16>;
 	display-timings {

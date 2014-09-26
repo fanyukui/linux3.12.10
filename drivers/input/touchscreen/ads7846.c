@@ -18,6 +18,7 @@
  *  published by the Free Software Foundation.
  */
 #define DEBUG
+#define VERBOSE_DEBUG
 #include <linux/types.h>
 #include <linux/hwmon.h>
 #include <linux/init.h>

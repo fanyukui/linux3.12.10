@@ -244,6 +244,12 @@
 				ti,y-min = /bits/ 16 <0>;
 				ti,y-max = /bits/ 16 <4800>;
 				ti,x-plate-ohms = /bits/ 16 <40>;
+				ti,debounce-max = <10>;
+				ti,debounce-tol = <3>;
+				ti,debounce-rep = <1>;
+				ti,settle-delay-usec = <150>;
+				ti,keep-vref-on	 = <1>;
+				ti,pendown-gpio-debounce = <25>;
 				ti,pressure-max = /bits/ 16 <255>;
 	
 				linux,wakeup;

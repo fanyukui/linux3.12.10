@@ -21,6 +21,7 @@ COPYRIGHT:SZHC
 #include <linux/input.h>
 #include <linux/irq.h>
 #include <linux/interrupt.h>
+#include <asm/io.h>
 
 /* 加载模式后,执行”cat /proc/devices”命令看到的设备名称 */
 #define DEVICE_NAME "szhc_keypads"
@@ -36,11 +37,47 @@ unsigned int rowtable[RowCount];
 unsigned int knob[3] = {80,81,82};
 unsigned int pulley[3] = {90,91,92};
 static int rowNum,colomnNum;
-
 static int pressed;
 
-
 #define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
+
+
+#define MODE7 7
+
+/*I/O状态配置*/
+#define IEN (1 << 5)
+#define PD (0 << 3)
+#define PU (2 << 3)
+#define OFF (1 << 3)
+#define GPIO_MOD_CTRL_BIT	BIT(0)
+
+/*Module Control 寄存器*/
+#define AM335X_CTRL_BASE			0x44E10000
+
+#define CONTROL_PADCONF_GPMC_CSN0                 0x087C
+#define CONTROL_PADCONF_MCASP0_AHCLKX             0x09AC
+#define CONTROL_PADCONF_EMU0                      0x09E4
+#define CONTROL_PADCONF_EMU1                      0x09E8
+#define CONTROL_PADCONF_MCASP0_ACLKR              0x09A0
+#define CONTROL_PADCONF_XDMA_EVENT_INTR0          0x09B0
+
+
+/*模式配置*/
+#define MUX_VAL(OFFSET,VALUE)\
+    writel((VALUE) | (readl(p+(OFFSET)) & ~0x7), p + (OFFSET));
+
+#define MUX_READ(OFFSET)    \
+    readl(p+(OFFSET))
+
+/*模式配置*/
+#define MUX_EVM() \
+    MUX_VAL(CONTROL_PADCONF_GPMC_CSN0, (IEN | PU | MODE7 )) /* gpio2[1] */\
+    MUX_VAL(CONTROL_PADCONF_MCASP0_AHCLKX, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */\
+    MUX_VAL(CONTROL_PADCONF_EMU0, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */\
+    MUX_VAL(CONTROL_PADCONF_EMU1, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */\
+    MUX_VAL(CONTROL_PADCONF_MCASP0_ACLKR, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */\
+    MUX_VAL(CONTROL_PADCONF_XDMA_EVENT_INTR0, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */
+
 
 static struct timer_list s_timer;
 static struct input_dev  *button_dev; /*输入设备结构体*/
@@ -62,7 +99,7 @@ void initKeyPad(void)
 
 }
 
-void initPinOut(unsigned int gpio,bool isOut,char *label)
+void initPinOut(unsigned int gpio,bool isOut,char *label,unsigned int high)
 {
     int result;
     /* Allocating GPIOs and setting direction */
@@ -70,7 +107,7 @@ void initPinOut(unsigned int gpio,bool isOut,char *label)
     if (result != 0)
         printk("gpio_request(%d) failed!\n",gpio);
     if(isOut){
-        result = gpio_direction_output(gpio,0);  //beep 拉低
+        result = gpio_direction_output(gpio,high);  //beep 拉低
         if (result != 0)
             printk("gpio_direction(%d) failed!\n",gpio);
 
@@ -109,18 +146,35 @@ void initConfig(void)
     int row,column;
     int irq = 0,ret = 0;
 
+
+    /*配置模式*/
+    void __iomem *p = ioremap_nocache(AM335X_CTRL_BASE ,SZ_4K);
+    if(!p){
+        printk("ioremap failed\n");
+        return -1;
+    }
+    MUX_EVM();
+    /*printk("CONTROL_PADCONF_GPMC_CSN0: 0x%x\n",MUX_READ(CONTROL_PADCONF_GPMC_CSN0));
+    printk("CONTROL_PADCONF_MCASP0_AHCLKX: 0x%x\n",MUX_READ(CONTROL_PADCONF_MCASP0_AHCLKX));
+    printk("CONTROL_PADCONF_EMU0: 0x%x\n",MUX_READ(CONTROL_PADCONF_EMU0));
+    printk("CONTROL_PADCONF_EMU1: 0x%x\n",MUX_READ(CONTROL_PADCONF_EMU1));
+    printk("CONTROL_PADCONF_MCASP0_ACLKR: 0x%x\n",MUX_READ(CONTROL_PADCONF_MCASP0_ACLKR));
+    printk("CONTROL_PADCONF_XDMA_EVENT_INTR0: 0x%x\n",MUX_READ(CONTROL_PADCONF_XDMA_EVENT_INTR0));
+    */
+    iounmap(p);
+
     /*蜂鸣器 输出*/
-  	initPinOut(GPIO_TO_PIN(1,19),true,"Beep");
+  	initPinOut(GPIO_TO_PIN(1,19),true,"Beep",0);
 
     /*旋钮 输入*/
-	initPinOut(GPIO_TO_PIN(2,0),false,"Knob"); //停止
-	initPinOut(GPIO_TO_PIN(2,5),false,"Knob");  //自动 低电平有效
-	initPinOut(GPIO_TO_PIN(2,2),false,"Knob");  //手动
+	initPinOut(GPIO_TO_PIN(2,0),false,"Knob",0); //停止
+	initPinOut(GPIO_TO_PIN(2,5),false,"Knob",0);  //自动 低电平有效
+	initPinOut(GPIO_TO_PIN(2,2),false,"Knob",0);  //手动
 
     /*滚轮 输入*/
-    initPinOut(GPIO_TO_PIN(2,1),false,"pulley");
-    initPinOut(GPIO_TO_PIN(2,3),false,"pulley");  /*中断口*/
-    initPinOut(GPIO_TO_PIN(2,4),false,"pulley");
+    initPinOut(GPIO_TO_PIN(2,1),false,"pulley",0);
+    initPinOut(GPIO_TO_PIN(2,3),false,"pulley",0);  /*中断口*/
+    initPinOut(GPIO_TO_PIN(2,4),false,"pulley",0);
 
     gpio_set_debounce(GPIO_TO_PIN(2,3),25);
 
@@ -151,7 +205,7 @@ void initConfig(void)
     /*行 输入*/
     for(row=0;row<RowCount;row++)
     {
-        initPinOut(rowtable[row],false,"KeyPadInput");
+        initPinOut(rowtable[row],false,"KeyPadInput",0);
     }
 
     /*初始化 columntable*/
@@ -160,7 +214,7 @@ void initConfig(void)
     columtable[2] = GPIO_TO_PIN(1,25);
     columtable[3] = GPIO_TO_PIN(0,31);
     columtable[4] = GPIO_TO_PIN(1,17);
-    columtable[5] = GPIO_TO_PIN(3,19);
+    columtable[5] = GPIO_TO_PIN(0,19);//第六行
   //  columtable[5] = GPIO_TO_PIN(1,16);
   //  columtable[6] = GPIO_TO_PIN(0,30);
   //  columtable[7] = GPIO_TO_PIN(1,28);
@@ -168,7 +222,7 @@ void initConfig(void)
     /*列 输出*/
     for(column=0;column<ColumnCount;column++)
     {
-        initPinOut(columtable[column],true,"KeyPadOutput");
+        initPinOut(columtable[column],true,"KeyPadOutput",1);
     }
 
 }
@@ -194,18 +248,18 @@ void timer_handler(unsigned long arg)
     int col = 0,row = 0;
 
     /*处理旋钮*/
-  	int p1 = gpio_get_value(GPIO_TO_PIN(0,13));
+  	int p1 = gpio_get_value(GPIO_TO_PIN(2,0));
     int p2 = gpio_get_value(GPIO_TO_PIN(2,5));
     int p3 = gpio_get_value(GPIO_TO_PIN(2,2));
     int value = (p1 << 2) | (p2 << 1) | p3;
     //printk("value: %d\n",value);
-    if(value == 6){
+    if(value == 6){  //手动
   			input_report_key(button_dev,knob[0], true);
    			input_report_key(button_dev,knob[1], false);
    			input_report_key(button_dev,knob[2], false);
             input_sync(button_dev);
     }
-    else if(value == 3){
+    else if(value == 5){  //停止
   			input_report_key(button_dev,knob[1], true);
   			input_report_key(button_dev,knob[2], false);
    			input_report_key(button_dev,knob[0], false);
@@ -213,7 +267,7 @@ void timer_handler(unsigned long arg)
             input_sync(button_dev);
 
     }
-    else if(value == 1){
+    else if(value == 1){ //自动
   			input_report_key(button_dev,knob[2], true);
   			input_report_key(button_dev,knob[0], false);
    			input_report_key(button_dev,knob[1], false);
@@ -246,13 +300,14 @@ void timer_handler(unsigned long arg)
       			input_report_key(button_dev,keypad[row][col], 1);
                 rowNum = row;
                 colomnNum = col;
+                printk("row: %d\tcolumn:%d\tkey value: %d \t pressed!\n",row,col,keypad[row][col]);
                 goto finished;
-                //printk("row: %d\tcolumn:%d\tkey value: %d \t pressed!\n",row,col,keypad[row][col]);
                 //input_sync(button_dev);
             }
-            if(col == colomnNum && gpio_get_value(rowtable[rowNum]))
+            if(col == colomnNum && row == rowNum &&
+                gpio_get_value(rowtable[rowNum]) && pressed)
             {
-                //printk("row: %d\tcolumn:%d\tkey value: %d \t released!\n",row,col,keypad[row][col]);
+                printk("row: %d\tcolumn:%d\tkey value: %d \t released!\n",row,col,keypad[row][col]);
                 pressed = 0;
                 Beep_Off();
       			input_report_key(button_dev,keypad[row][col], 0);
