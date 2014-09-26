@@ -23,42 +23,36 @@ COPYRIGHT:SZHC
 #define IOCTL_LED_OFF 0
 #define IOCTL_LED_ALL 2
 
+#define LED_NUMS 4
 #define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
 
 /* 用来指定 LED 所用的 GPIO 引脚 */
-static unsigned long led_table [4] ={ 21,22,23,24};
+static unsigned long led_table [LED_NUMS] ={
+    GPIO_TO_PIN(1,21),
+    GPIO_TO_PIN(1,22),
+    GPIO_TO_PIN(1,23),
+    GPIO_TO_PIN(1,24)
+};
 
-void initPin(unsigned int bank,unsigned int gpio)
+void initPin(unsigned int gpio)
 {
     int result;
     /* Allocating GPIOs and setting direction */
-    result = gpio_request(GPIO_TO_PIN(bank,gpio), "Leds");//usr1
+    result = gpio_request(gpio, "Leds");//usr1
     if (result != 0)
-        printk("gpio_request(%d_%d) failed!\n",bank,gpio);
-    result = gpio_direction_output(GPIO_TO_PIN(bank,gpio), 0); //拉低
+        printk("gpio_request %d failed!\n",gpio);
+    result = gpio_direction_output(gpio, 0); //拉低
     if (result != 0)
-        printk("gpio_direction(%d_%d) failed!\n",bank,gpio);
+        printk("gpio_direction %d failed!\n",gpio);
 }
 
 void initLedConfig(void)
 {
     int i;
-    for(i=0;i<4;i++)
+    for(i=0;i<LED_NUMS;i++)
     {
-        initPin(1,led_table[i]);
+        initPin(led_table[i]);
     }
-}
-
-
-void set_led_value(int index,int value)
-{
-    if(value){
-        gpio_set_value(GPIO_TO_PIN(1,index), 1);
-    }
-    else{
-        gpio_set_value(GPIO_TO_PIN(1,index), 0);
-    }
-
 }
 
 static int szhc_leds_open(struct inode *inode, struct file *file)
@@ -71,14 +65,14 @@ static int szhc_leds_ioctl(struct file *file, unsigned int cmd, unsigned long ar
 {
     printk("**szhc_leds_ioctl(arg=%d,cmd=%d)(/drivers/char/szhc_leds_jixieshou.c )**\n",arg,cmd);
 
-    (arg & 8)? set_led_value(led_table[3], IOCTL_LED_ON)
-             : set_led_value(led_table[3], IOCTL_LED_OFF);
-    (arg & 4)? set_led_value(led_table[2], IOCTL_LED_ON)
-             : set_led_value(led_table[2],IOCTL_LED_OFF);
-    (arg & 2)?  set_led_value(led_table[1], IOCTL_LED_ON)
-              :  set_led_value(led_table[1], IOCTL_LED_OFF);
-    (arg & 1)?  set_led_value(led_table[0], IOCTL_LED_ON)
-              :  set_led_value(led_table[0], IOCTL_LED_OFF);
+    (arg & 8)? gpio_set_value(led_table[3], IOCTL_LED_ON)
+             : gpio_set_value(led_table[3], IOCTL_LED_OFF);
+    (arg & 4)? gpio_set_value(led_table[2], IOCTL_LED_ON)
+             : gpio_set_value(led_table[2],IOCTL_LED_OFF);
+    (arg & 2)?  gpio_set_value(led_table[1], IOCTL_LED_ON)
+              :  gpio_set_value(led_table[1], IOCTL_LED_OFF);
+    (arg & 1)?  gpio_set_value(led_table[0], IOCTL_LED_ON)
+              :  gpio_set_value(led_table[0], IOCTL_LED_OFF);
     return 0;
 }
 
@@ -94,7 +88,7 @@ static struct class *led_class;
 
 static int __init szhc_leds_init(void)
 {
-    int ret,i;
+    int ret;
     printk(banner);
 
     /*初始化LED配置*/
