@@ -244,14 +244,15 @@
 				ti,y-min = /bits/ 16 <0>;
 				ti,y-max = /bits/ 16 <4800>;
 				ti,x-plate-ohms = /bits/ 16 <40>;
-				ti,debounce-max = <10>;
-				ti,debounce-tol = <3>;
-				ti,debounce-rep = <1>;
-				ti,settle-delay-usec = <150>;
-				ti,keep-vref-on	 = <1>;
-				ti,pendown-gpio-debounce = <25>;
+				ti,debounce-max = /bits/ 16 <10>;
+				ti,debounce-tol = /bits/ 16 <50>;
+				ti,debounce-rep = /bits/ 16 <1>;
+				ti,settle-delay-usec = /bits/ 16 <150>;
+				ti,vref-delay-usecs	 = /bits/ 16 <100>;
+				ti,pendown-gpio-debounce = /bits/ 16 <25>;
 				ti,pressure-max = /bits/ 16 <255>;
-	
+				
+				ti,keep-vref-on;				
 				linux,wakeup;
 			};
 		};
