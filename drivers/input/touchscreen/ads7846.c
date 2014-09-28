@@ -36,6 +36,7 @@
 #include <linux/regulator/consumer.h>
 #include <linux/module.h>
 #include <asm/irq.h>
+#include <linux/gpio.h>
 
 /*
  * This code has been heavily tested on a Nokia 770, and lightly
@@ -200,6 +201,10 @@ struct ads7846 {
 
 #define	REF_ON	(READ_12BIT_DFR(x, 1, 1))
 #define	REF_OFF	(READ_12BIT_DFR(y, 0, 0))
+
+#define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
+#define OPERATING_NO_PERMIT() (gpio_get_value(GPIO_TO_PIN(1,20)) == 1)
+
 
 /* Must be called with ts->lock held */
 static void ads7846_stop(struct ads7846 *ts)
@@ -885,6 +890,12 @@ static irqreturn_t ads7846_hard_irq(int irq, void *handle)
 static irqreturn_t ads7846_irq(int irq, void *handle)
 {
 	struct ads7846 *ts = handle;
+
+    /*屏蔽中断信息和上报信息*/
+    if(OPERATING_NO_PERMIT())
+    {
+	    return IRQ_HANDLED;
+    }
 
 	/* Start with a small delay before checking pendown state */
 	msleep(TS_POLL_DELAY);

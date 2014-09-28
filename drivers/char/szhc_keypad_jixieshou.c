@@ -40,6 +40,7 @@ static int rowNum,colomnNum;
 static int pressed;
 
 #define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
+#define OPERATING_NO_PERMIT() (gpio_get_value(GPIO_TO_PIN(1,20)) == 1)
 
 
 #define MODE7 7
@@ -62,6 +63,7 @@ static int pressed;
 #define CONTROL_PADCONF_XDMA_EVENT_INTR0          0x09B0
 #define CONTROL_PADCONF_USB0_DRVVBUS              0x0A1C
 #define CONTROL_PADCONF_USB1_DRVVBUS              0x0A34
+#define CONTROL_PADCONF_GPMC_A4                   0x0850
 
 
 /*模式配置*/
@@ -80,7 +82,8 @@ static int pressed;
     MUX_VAL(CONTROL_PADCONF_MCASP0_ACLKR, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */\
     MUX_VAL(CONTROL_PADCONF_XDMA_EVENT_INTR0, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */  \
     MUX_VAL(CONTROL_PADCONF_USB0_DRVVBUS, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */   \
-    MUX_VAL(CONTROL_PADCONF_USB1_DRVVBUS, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */
+    MUX_VAL(CONTROL_PADCONF_USB1_DRVVBUS, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */   \
+    MUX_VAL(CONTROL_PADCONF_GPMC_A4, (IEN | PU | MODE7 ))   /*底座按钮*/
 
 
 static struct timer_list s_timer;
@@ -129,6 +132,12 @@ irqreturn_t irq_handler(int irqno, void *dev_id)
 {
  //   printk("GPIO_TO_PIN(2,4) :%d\n",gpio_get_value(GPIO_TO_PIN(2,4)));
 
+    /*屏蔽中断信息和上报信息*/
+    if(OPERATING_NO_PERMIT())
+    {
+        return IRQ_HANDLED;
+    }
+
     if(gpio_get_value(GPIO_TO_PIN(2,4)))
     {
   			input_report_key(button_dev,pulley[1], true);
@@ -158,17 +167,13 @@ void initConfig(void)
         return;
     }
     MUX_EVM();
-    /*printk("CONTROL_PADCONF_GPMC_CSN0: 0x%x\n",MUX_READ(CONTROL_PADCONF_GPMC_CSN0));
-    printk("CONTROL_PADCONF_MCASP0_AHCLKX: 0x%x\n",MUX_READ(CONTROL_PADCONF_MCASP0_AHCLKX));
-    printk("CONTROL_PADCONF_EMU0: 0x%x\n",MUX_READ(CONTROL_PADCONF_EMU0));
-    printk("CONTROL_PADCONF_EMU1: 0x%x\n",MUX_READ(CONTROL_PADCONF_EMU1));
-    printk("CONTROL_PADCONF_MCASP0_ACLKR: 0x%x\n",MUX_READ(CONTROL_PADCONF_MCASP0_ACLKR));
-    printk("CONTROL_PADCONF_XDMA_EVENT_INTR0: 0x%x\n",MUX_READ(CONTROL_PADCONF_XDMA_EVENT_INTR0));
-    */
     iounmap(p);
 
     /*蜂鸣器 输出*/
   	initPinOut(GPIO_TO_PIN(1,19),true,"Beep",0);
+
+    /*底座按钮 输入*/
+  	initPinOut(GPIO_TO_PIN(1,20),false,"Bottom Button",1);
 
     /*旋钮 输入*/
 	initPinOut(GPIO_TO_PIN(2,0),false,"Knob",0); //停止
@@ -248,13 +253,19 @@ void downColumn(int index)
 
 void timer_handler(unsigned long arg)
 {
-    int col = 0,row = 0;
+    int col = 0,row = 0,p1,p2,p3,value;
+
+    /*屏蔽中断信息和上报信息*/
+    if(OPERATING_NO_PERMIT())
+    {
+        return;
+    }
 
     /*处理旋钮*/
-  	int p1 = gpio_get_value(GPIO_TO_PIN(2,0));
-    int p2 = gpio_get_value(GPIO_TO_PIN(2,5));
-    int p3 = gpio_get_value(GPIO_TO_PIN(2,2));
-    int value = (p1 << 2) | (p2 << 1) | p3;
+  	p1 = gpio_get_value(GPIO_TO_PIN(2,0));
+    p2 = gpio_get_value(GPIO_TO_PIN(2,5));
+    p3 = gpio_get_value(GPIO_TO_PIN(2,2));
+    value = (p1 << 2) | (p2 << 1) | p3;
     //printk("value: %d\n",value);
     if(value == 6){  //手动
   			input_report_key(button_dev,knob[0], true);
