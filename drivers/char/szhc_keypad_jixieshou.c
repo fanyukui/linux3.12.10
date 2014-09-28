@@ -27,8 +27,8 @@ COPYRIGHT:SZHC
 #define DEVICE_NAME "szhc_keypads"
 
 
-#define ColumnCount   6
-#define RowCount   5
+#define ColumnCount   8
+#define RowCount   8
 
 char keypad[RowCount][ColumnCount];
 unsigned int columtable[ColumnCount];
@@ -203,9 +203,9 @@ void initConfig(void)
     rowtable[2] = GPIO_TO_PIN(1,29);
     rowtable[3] = GPIO_TO_PIN(3,21);
     rowtable[4] = GPIO_TO_PIN(3,18);
-  //  rowtable[5] = GPIO_TO_PIN(0,19);
-   // rowtable[6] = GPIO_TO_PIN(0,18);
-   // rowtable[7] = GPIO_TO_PIN(3,13);
+    rowtable[5] = GPIO_TO_PIN(0,19);
+    rowtable[6] = GPIO_TO_PIN(0,18);
+    rowtable[7] = GPIO_TO_PIN(3,13);
     /*行 输入*/
     for(row=0;row<RowCount;row++)
     {
@@ -218,10 +218,9 @@ void initConfig(void)
     columtable[2] = GPIO_TO_PIN(1,25);
     columtable[3] = GPIO_TO_PIN(0,31);
     columtable[4] = GPIO_TO_PIN(1,17);
-    columtable[5] = GPIO_TO_PIN(0,19);//第六行
-  //  columtable[5] = GPIO_TO_PIN(1,16);
-  //  columtable[6] = GPIO_TO_PIN(0,30);
-  //  columtable[7] = GPIO_TO_PIN(1,28);
+    columtable[5] = GPIO_TO_PIN(1,16);
+    columtable[6] = GPIO_TO_PIN(0,30);
+    columtable[7] = GPIO_TO_PIN(1,28);
 
     /*列 输出*/
     for(column=0;column<ColumnCount;column++)
