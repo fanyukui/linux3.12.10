@@ -245,11 +245,11 @@
 				ti,y-max = /bits/ 16 <4800>;
 				ti,x-plate-ohms = /bits/ 16 <40>;
 				ti,debounce-max = /bits/ 16 <10>;
-				ti,debounce-tol = /bits/ 16 <50>;
+				ti,debounce-tol = /bits/ 16 <15>;
 				ti,debounce-rep = /bits/ 16 <1>;
 				ti,settle-delay-usec = /bits/ 16 <150>;
 				ti,vref-delay-usecs	 = /bits/ 16 <100>;
-				ti,pendown-gpio-debounce = /bits/ 16 <25>;
+				ti,pendown-gpio-debounce = /bits/ 16 <5>;
 				ti,pressure-max = /bits/ 16 <255>;
 				
 				ti,keep-vref-on;				
