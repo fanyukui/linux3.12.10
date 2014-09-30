@@ -1482,19 +1482,12 @@ static struct lcd_ctrl_config *da8xx_fb_create_cfg(struct platform_device *dev)
 		dev_err(dev, "Failed to read bpp from DT\n");
 		return -EINVAL;
 	}
-	/* default values
-	if (lcd_revision == LCD_VERSION_1)
-		cfg->bpp = 16;
-	else
-		cfg->bpp = 16;
-    */
 	/*
 	 * For panels so far used with this LCDC, below statement is sufficient.
 	 * For new panels, if required, struct lcd_ctrl_cfg fields to be updated
 	 * with additional/modified values. Those values would have to be then
 	 * obtained from dt(requiring new dt bindings).
 	 */
-   // cfg->tft_alt_mode = 1;
 	cfg->panel_shade = COLOR_ACTIVE;
 
 	return cfg;

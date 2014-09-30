@@ -25,7 +25,7 @@ COPYRIGHT:SZHC
 
 /* 加载模式后,执行”cat /proc/devices”命令看到的设备名称 */
 #define DEVICE_NAME "szhc_keypads"
-
+#define KEYPAD_DELAY 200
 
 #define ColumnCount   6
 #define RowCount   5
@@ -131,14 +131,13 @@ irqreturn_t irq_handler(int irqno, void *dev_id)
 
     if(gpio_get_value(GPIO_TO_PIN(2,4)))
     {
-  			input_report_key(button_dev,pulley[1], true);
-  			input_report_key(button_dev,pulley[1], false);
-
-    }
-    else{
   			input_report_key(button_dev,pulley[2], true);
   			input_report_key(button_dev,pulley[2], false);
 
+    }
+    else{
+  			input_report_key(button_dev,pulley[1], true);
+  			input_report_key(button_dev,pulley[1], false);
 
     }
     return IRQ_HANDLED;
@@ -180,7 +179,7 @@ void initConfig(void)
     initPinOut(GPIO_TO_PIN(2,3),false,"pulley",0);  /*中断口*/
     initPinOut(GPIO_TO_PIN(2,4),false,"pulley",0);
 
-    gpio_set_debounce(GPIO_TO_PIN(2,3),25);
+    gpio_set_debounce(GPIO_TO_PIN(2,3),KEYPAD_DELAY);
 
     /*申请中断*/
     irq = gpio_to_irq(GPIO_TO_PIN(2, 3));
