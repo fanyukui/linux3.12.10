@@ -37,7 +37,7 @@
  *
  *     - Arno Griffioen <arno@usn.nl>
  *     - David Carter <carter@cs.bris.ac.uk>
- * 
+ *
  *   The abstract console driver provides a generic interface for a text
  *   console. It supports VGA text mode, frame buffer based graphical consoles
  *   and special graphics processors that are only accessible through some
@@ -2809,7 +2809,7 @@ static void con_shutdown(struct tty_struct *tty)
 	console_unlock();
 }
 
-static int default_color           = 7; /* white */
+static int default_color           = 0x87; /* white */
 static int default_italic_color    = 2; // green (ASCII)
 static int default_underline_color = 3; // cyan (ASCII)
 module_param_named(color, default_color, int, S_IRUGO | S_IWUSR);
@@ -3917,9 +3917,9 @@ void reset_palette(struct vc_data *vc)
  *  Font switching
  *
  *  Currently we only support fonts up to 32 pixels wide, at a maximum height
- *  of 32 pixels. Userspace fontdata is stored with 32 bytes (shorts/ints, 
- *  depending on width) reserved for each character which is kinda wasty, but 
- *  this is done in order to maintain compatibility with the EGA/VGA fonts. It 
+ *  of 32 pixels. Userspace fontdata is stored with 32 bytes (shorts/ints,
+ *  depending on width) reserved for each character which is kinda wasty, but
+ *  this is done in order to maintain compatibility with the EGA/VGA fonts. It
  *  is up to the actual low-level console-driver convert data into its favorite
  *  format (maybe we should add a `fontoffset' field to the `display'
  *  structure so we won't have to convert the fontdata all the time.
@@ -3958,7 +3958,7 @@ static int con_font_get(struct vc_data *vc, struct console_font_op *op)
 	if (op->data && font.charcount > op->charcount)
 		rc = -ENOSPC;
 	if (!(op->flags & KD_FONT_FLAG_OLD)) {
-		if (font.width > op->width || font.height > op->height) 
+		if (font.width > op->width || font.height > op->height)
 			rc = -ENOSPC;
 	} else {
 		if (font.width != 8)
