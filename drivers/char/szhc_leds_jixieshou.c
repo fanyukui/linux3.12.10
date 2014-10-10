@@ -23,7 +23,7 @@ COPYRIGHT:SZHC
 #define IOCTL_LED_OFF 0
 #define IOCTL_LED_ALL 2
 
-#define LED_NUMS 4
+#define LED_NUMS 5
 #define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
 
 /* 用来指定 LED 所用的 GPIO 引脚 */
@@ -31,7 +31,8 @@ static unsigned long led_table [LED_NUMS] ={
     GPIO_TO_PIN(1,21),
     GPIO_TO_PIN(1,22),
     GPIO_TO_PIN(1,23),
-    GPIO_TO_PIN(1,24)
+    GPIO_TO_PIN(1,24),
+    GPIO_TO_PIN(1,20)
 };
 
 void initPin(unsigned int gpio)

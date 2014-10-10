@@ -41,7 +41,7 @@ static int rowNum,colomnNum;
 static int pressed;
 
 #define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
-#define OPERATING_NO_PERMIT() (gpio_get_value(GPIO_TO_PIN(1,20)) == 1)
+#define OPERATING_NO_PERMIT() (gpio_get_value(GPIO_TO_PIN(0,20)) == 1)
 
 
 #define MODE7 7
