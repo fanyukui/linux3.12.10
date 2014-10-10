@@ -64,7 +64,7 @@ static int pressed;
 #define CONTROL_PADCONF_XDMA_EVENT_INTR0          0x09B0
 #define CONTROL_PADCONF_USB0_DRVVBUS              0x0A1C
 #define CONTROL_PADCONF_USB1_DRVVBUS              0x0A34
-#define CONTROL_PADCONF_GPMC_A4                   0x0850
+#define CONTROL_PADCONF_XDMA_EVENT_INTR1          0x09B4
 
 
 /*Ä£Ê½ÅäÖÃ*/
@@ -84,7 +84,7 @@ static int pressed;
     MUX_VAL(CONTROL_PADCONF_XDMA_EVENT_INTR0, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */  \
     MUX_VAL(CONTROL_PADCONF_USB0_DRVVBUS, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */   \
     MUX_VAL(CONTROL_PADCONF_USB1_DRVVBUS, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */   \
-    MUX_VAL(CONTROL_PADCONF_GPMC_A4, (IEN | PU | MODE7 ))   /*µ××ù°´Å¥*/
+    MUX_VAL(CONTROL_PADCONF_XDMA_EVENT_INTR1, (IEN | PU | MODE7 ))   /*µ××ù°´Å¥*/
 
 
 static struct timer_list s_timer;

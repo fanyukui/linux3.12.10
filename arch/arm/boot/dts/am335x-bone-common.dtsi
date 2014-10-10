@@ -78,6 +78,7 @@
 		
 		spi1_pins: pinmux_spi1_pins {
 			pinctrl-single,pins = <
+				0x050 (PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a4.gpio1_20 */
 				0x190 (PIN_INPUT_PULLUP | MUX_MODE3)    /* spi1_clk.spi1_clk */
 				0x194 (PIN_INPUT_PULLUP | MUX_MODE3)    /* spi1_d0.spi1_d0 */
 				0x198 (PIN_INPUT_PULLUP | MUX_MODE3)    /* spi1_d1.spi1_d1 */
