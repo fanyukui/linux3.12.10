@@ -36,6 +36,7 @@
 #include <linux/regulator/consumer.h>
 #include <linux/module.h>
 #include <asm/irq.h>
+#include <linux/timer.h>
 
 /*
  * This code has been heavily tested on a Nokia 770, and lightly
@@ -200,6 +201,38 @@ struct ads7846 {
 
 #define	REF_ON	(READ_12BIT_DFR(x, 1, 1))
 #define	REF_OFF	(READ_12BIT_DFR(y, 0, 0))
+
+//#define ADD_BUZZER_WITH_TOUCHSCREEN
+
+/*beep*/
+#ifdef ADD_BUZZER_WITH_TOUCHSCREEN
+#define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
+#define Beep_On()   do {gpio_set_value(GPIO_TO_PIN(1,19), 1); } while(0)
+#define Beep_Off()  do {gpio_set_value(GPIO_TO_PIN(1,19), 0); } while(0)
+static int buzzer = 1;
+static struct timer_list beep_timer;
+
+void timer_handler_function(unsigned long arg)
+{
+    Beep_Off();     //close the buzzer
+}
+
+void Beep_Once(void)
+{
+    if(buzzer)
+    {
+        Beep_On();
+        buzzer = 0;
+        beep_timer.expires = jiffies + HZ/10; //100ms
+        add_timer(&beep_timer);
+    }
+}
+
+#endif
+
+
+
+
 
 /* Must be called with ts->lock held */
 static void ads7846_stop(struct ads7846 *ts)
@@ -899,6 +932,10 @@ static irqreturn_t ads7846_irq(int irq, void *handle)
 
 		wait_event_timeout(ts->wait, ts->stopped,
 				   msecs_to_jiffies(TS_POLL_PERIOD));
+#ifdef ADD_BUZZER_WITH_TOUCHSCREEN
+        Beep_Once(); //存在问题(add_timer()不能在中断和线程中调用)
+#endif
+
 	}
 
 	if (ts->pendown) {
@@ -909,6 +946,9 @@ static irqreturn_t ads7846_irq(int irq, void *handle)
 		input_sync(input);
 
 		ts->pendown = false;
+#ifdef ADD_BUZZER_WITH_TOUCHSCREEN
+        buzzer = 1;
+#endif
 		dev_vdbg(&ts->spi->dev, "UP\n");
 	}
 
@@ -1302,6 +1342,11 @@ static int ads7846_probe(struct spi_device *spi)
 				(spi->max_speed_hz/SAMPLE_BITS)/1000);
 		return -EINVAL;
 	}
+
+#ifdef ADD_BUZZER_WITH_TOUCHSCREEN
+    init_timer(&beep_timer);
+    beep_timer.function = timer_handler_function;
+#endif
 
 	/*
 	 * We'd set TX word size 8 bits and RX word size to 13 bits ... except
