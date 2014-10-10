@@ -202,7 +202,7 @@ struct ads7846 {
 #define	REF_ON	(READ_12BIT_DFR(x, 1, 1))
 #define	REF_OFF	(READ_12BIT_DFR(y, 0, 0))
 
-//#define ADD_BUZZER_WITH_TOUCHSCREEN
+#define ADD_BUZZER_WITH_TOUCHSCREEN
 
 /*beep*/
 #ifdef ADD_BUZZER_WITH_TOUCHSCREEN
@@ -223,8 +223,8 @@ void Beep_Once(void)
     {
         Beep_On();
         buzzer = 0;
-        beep_timer.expires = jiffies + HZ/10; //100ms
-        add_timer(&beep_timer);
+        //beep_timer.expires = jiffies + HZ/10;
+        mod_timer(&beep_timer,jiffies + HZ/10);//100ms
     }
 }
 
@@ -1346,6 +1346,8 @@ static int ads7846_probe(struct spi_device *spi)
 #ifdef ADD_BUZZER_WITH_TOUCHSCREEN
     init_timer(&beep_timer);
     beep_timer.function = timer_handler_function;
+    beep_timer.expires = jiffies + HZ/10 ;
+  	add_timer(&beep_timer);
 #endif
 
 	/*
