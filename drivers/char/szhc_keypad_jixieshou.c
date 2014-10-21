@@ -173,7 +173,7 @@ void initConfig(void)
   	initPinOut(GPIO_TO_PIN(1,19),true,"Beep",0);
 
     /*µ◊◊˘∞¥≈•  ‰»Î*/
-  	initPinOut(GPIO_TO_PIN(1,20),false,"Bottom Button",1);
+  	initPinOut(GPIO_TO_PIN(0,20),false,"Bottom Button",1);
 
     /*–˝≈•  ‰»Î*/
 	initPinOut(GPIO_TO_PIN(2,0),false,"Knob",0); //Õ£÷π
