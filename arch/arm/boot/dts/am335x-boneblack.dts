@@ -97,7 +97,7 @@
 	pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
 	/*pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;*/
 	status = "okay";
-	bits-per-pixel = <24>;
+	bits-per-pixel = <32>;
 	display-timings {
 		native-mode = <&timing1>;
 		timing0: 640x480p16  {
