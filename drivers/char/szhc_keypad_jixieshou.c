@@ -258,7 +258,7 @@ void timer_handler(unsigned long arg)
     /*屏蔽中断信息和上报信息*/
     if(OPERATING_NO_PERMIT())
     {
-        return;
+        goto finished;
     }
 
     /*处理旋钮*/
