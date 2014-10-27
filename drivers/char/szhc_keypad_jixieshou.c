@@ -85,6 +85,8 @@ static int pressed;
 
 static struct timer_list s_timer;
 static struct input_dev  *button_dev; /*输入设备结构体*/
+static int check_times[RowCount][ColumnCount];
+static int knob_times = 0;
 
 #define Beep_On()   do {gpio_set_value(GPIO_TO_PIN(1,19), 1); } while(0)
 #define Beep_Off()  do {gpio_set_value(GPIO_TO_PIN(1,19), 0); } while(0)
@@ -298,12 +300,16 @@ void timer_handler(unsigned long arg)
         {
             if(gpio_get_value(rowtable[row]) == 0 && !pressed)
             {
-                pressed = 1;
-                Beep_On();
-      			input_report_key(button_dev,keypad[row][col], 1);
-                rowNum = row;
-                colomnNum = col;
-                //printk("row: %d\tcolumn:%d\tkey value: %d \t pressed!\n",row,col,keypad[row][col]);
+                check_times[row][col] ++;
+                if(check_times[row][col] >= 2){
+                    pressed = 1;
+                    Beep_On();
+          			input_report_key(button_dev,keypad[row][col], 1);
+                    check_times[row][col] = 0;
+                    rowNum = row;
+                    colomnNum = col;
+                    //printk("row: %d\tcolumn:%d\tkey value: %d \t pressed!\n",row,col,keypad[row][col]);
+                }
                 goto finished;
                 //input_sync(button_dev);
             }
@@ -314,14 +320,20 @@ void timer_handler(unsigned long arg)
                 pressed = 0;
                 Beep_Off();
       			input_report_key(button_dev,keypad[row][col], 0);
+                goto finished;
+
             }
         }
 
     }
 
+    for(row=0;row < RowCount;row ++)
+        for(col=0;col < ColumnCount;col ++){
+            check_times[row][col] = 0;
+     }
 finished:
     input_sync(button_dev);
-	s_timer.expires = jiffies + HZ/50 ;
+	s_timer.expires = jiffies + HZ/40 ;
 	add_timer(&s_timer);
 }
 
