@@ -86,7 +86,8 @@ static int pressed;
 static struct timer_list s_timer;
 static struct input_dev  *button_dev; /*输入设备结构体*/
 static int check_times[RowCount][ColumnCount];
-static int knob_times = 0;
+static int knobStatus = 0;
+
 
 #define Beep_On()   do {gpio_set_value(GPIO_TO_PIN(1,19), 1); } while(0)
 #define Beep_Off()  do {gpio_set_value(GPIO_TO_PIN(1,19), 0); } while(0)
@@ -259,25 +260,29 @@ void timer_handler(unsigned long arg)
     int value = (p1 << 2) | (p2 << 1) | p3;
     //printk("value: %d\n",value);
     if(value == 6){  //手动
-  			input_report_key(button_dev,knob[0], true);
-   			input_report_key(button_dev,knob[1], false);
-   			input_report_key(button_dev,knob[2], false);
-            input_sync(button_dev);
+            if(knobStatus != 6){
+      			input_report_key(button_dev,knob[0], true);
+       			input_report_key(button_dev,knob[0], false);
+                input_sync(button_dev);
+            }
+            knobStatus = 6;
     }
     else if(value == 5){  //停止
-  			input_report_key(button_dev,knob[1], true);
-  			input_report_key(button_dev,knob[2], false);
-   			input_report_key(button_dev,knob[0], false);
-
-            input_sync(button_dev);
+            if(knobStatus != 5){
+      			input_report_key(button_dev,knob[1], true);
+      			input_report_key(button_dev,knob[1], false);
+                input_sync(button_dev);
+            }
+            knobStatus = 5;
 
     }
     else if(value == 1){ //自动
-  			input_report_key(button_dev,knob[2], true);
-  			input_report_key(button_dev,knob[0], false);
-   			input_report_key(button_dev,knob[1], false);
-            input_sync(button_dev);
-
+            if(knobStatus != 1){
+      			input_report_key(button_dev,knob[2], true);
+      			input_report_key(button_dev,knob[2], false);
+                input_sync(button_dev);
+            }
+            knobStatus = 1;
     }
 
     /*处理滚轮按下事件*/

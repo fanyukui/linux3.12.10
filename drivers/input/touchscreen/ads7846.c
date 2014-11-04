@@ -202,7 +202,7 @@ struct ads7846 {
 #define	REF_ON	(READ_12BIT_DFR(x, 1, 1))
 #define	REF_OFF	(READ_12BIT_DFR(y, 0, 0))
 
-#define ADD_BUZZER_WITH_TOUCHSCREEN
+//#define ADD_BUZZER_WITH_TOUCHSCREEN
 
 /*beep*/
 #ifdef ADD_BUZZER_WITH_TOUCHSCREEN
