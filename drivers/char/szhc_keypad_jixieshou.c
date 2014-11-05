@@ -87,6 +87,8 @@ static struct timer_list s_timer;
 static struct input_dev  *button_dev; /*输入设备结构体*/
 static int check_times[RowCount][ColumnCount];
 static int knobStatus = 0;
+static int knobTrigger = 0;
+static int oldValue = 0;
 
 
 #define Beep_On()   do {gpio_set_value(GPIO_TO_PIN(1,19), 1); } while(0)
@@ -258,17 +260,34 @@ void timer_handler(unsigned long arg)
     int p2 = gpio_get_value(GPIO_TO_PIN(2,5));
     int p3 = gpio_get_value(GPIO_TO_PIN(2,2));
     int value = (p1 << 2) | (p2 << 1) | p3;
+    if(oldValue != value && oldValue != 0)
+    {
+        knobTrigger = 1;
+    }
+    oldValue = value;
+
     //printk("value: %d\n",value);
     if(value == 6){  //手动
-            if(knobStatus != 6){
+            if(!knobTrigger){ //第一次一直上报
+      			input_report_key(button_dev,knob[0], true);
+       			input_report_key(button_dev,knob[0], false);
+                input_sync(button_dev);
+            }
+            else if(knobStatus != 6 ){ //之后切换上报
       			input_report_key(button_dev,knob[0], true);
        			input_report_key(button_dev,knob[0], false);
                 input_sync(button_dev);
             }
             knobStatus = 6;
+
     }
     else if(value == 5){  //停止
-            if(knobStatus != 5){
+            if(!knobTrigger){ //第一次一直上报
+      			input_report_key(button_dev,knob[1], true);
+       			input_report_key(button_dev,knob[1], false);
+                input_sync(button_dev);
+            }
+            else if(knobStatus != 5){//之后切换上报
       			input_report_key(button_dev,knob[1], true);
       			input_report_key(button_dev,knob[1], false);
                 input_sync(button_dev);
@@ -277,7 +296,12 @@ void timer_handler(unsigned long arg)
 
     }
     else if(value == 1){ //自动
-            if(knobStatus != 1){
+            if(!knobTrigger){ //第一次一直上报
+      			input_report_key(button_dev,knob[2], true);
+       			input_report_key(button_dev,knob[2], false);
+                input_sync(button_dev);
+            }
+            else if(knobStatus != 1){ //之后切换上报
       			input_report_key(button_dev,knob[2], true);
       			input_report_key(button_dev,knob[2], false);
                 input_sync(button_dev);
