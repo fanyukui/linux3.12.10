@@ -28,11 +28,11 @@ COPYRIGHT:SZHC
 
 /* 用来指定 LED 所用的 GPIO 引脚 */
 static unsigned long led_table [LED_NUMS] ={
-    GPIO_TO_PIN(1,21),
-    GPIO_TO_PIN(1,22),
-    GPIO_TO_PIN(1,23),
-    GPIO_TO_PIN(1,24),
-    GPIO_TO_PIN(1,20)
+    GPIO_TO_PIN(1,24), //可顶针
+    GPIO_TO_PIN(1,23), //可关模
+    GPIO_TO_PIN(1,22), //安全门
+    GPIO_TO_PIN(1,21), //开模完
+    GPIO_TO_PIN(1,20)  //再循环
 };
 
 void initPin(unsigned int gpio)
