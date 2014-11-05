@@ -20,7 +20,6 @@
 #include <linux/pwm.h>
 #include <linux/pwm_backlight.h>
 #include <linux/slab.h>
-#include <linux/timer.h>
 
 struct pwm_bl_data {
 	struct pwm_device	*pwm;
@@ -35,8 +34,6 @@ struct pwm_bl_data {
 	int			(*check_fb)(struct device *, struct fb_info *);
 	void			(*exit)(struct device *);
 };
-
-static struct timer_list s_timer;
 
 static int pwm_backlight_update_status(struct backlight_device *bl)
 {
@@ -164,26 +161,6 @@ static int pwm_backlight_parse_dt(struct device *dev,
 }
 #endif
 
-
-void timer_handler(unsigned long arg)
-{
-	struct backlight_device *bl = (struct backlight_device *)arg;
-	backlight_update_status(bl);
-}
-
-static void initTimer(unsigned long data)
-{
-   unsigned long j = jiffies;
-   init_timer(&s_timer);
-   s_timer.function = timer_handler;
-   s_timer.expires = j + HZ;
-   s_timer.data = data;
-
-   add_timer(&s_timer);
-
-}
-
-
 static int pwm_backlight_probe(struct platform_device *pdev)
 {
 	struct platform_pwm_backlight_data *data = pdev->dev.platform_data;
@@ -273,8 +250,8 @@ static int pwm_backlight_probe(struct platform_device *pdev)
 	}
 
 	bl->props.brightness = data->dft_brightness;
+	backlight_update_status(bl);
 
-    initTimer(bl);
 	platform_set_drvdata(pdev, bl);
 	return 0;
 
