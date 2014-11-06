@@ -177,9 +177,6 @@ void initConfig(void)
     /*蜂鸣器 输出*/
   	initPinOut(GPIO_TO_PIN(1,19),true,"Beep",0);
 
-    /*底座按钮 输入*/
-  	initPinOut(GPIO_TO_PIN(0,20),false,"Bottom Button",1);
-
     /*旋钮 输入*/
 	initPinOut(GPIO_TO_PIN(2,0),false,"Knob",0); //停止
 	initPinOut(GPIO_TO_PIN(2,5),false,"Knob",0);  //自动 低电平有效

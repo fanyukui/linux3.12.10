@@ -235,7 +235,25 @@ void Beep_Once(void)
 #endif
 
 
+void initPinOut(unsigned int gpio,bool isOut,char *label,unsigned int high)
+{
+    int result;
+    /* Allocating GPIOs and setting direction */
+    result = gpio_request(gpio, label);//usr1
+    if (result != 0)
+        printk("gpio_request(%d) failed!\n",gpio);
+    if(isOut){
+        result = gpio_direction_output(gpio,high);  //beep À­µÍ
+        if (result != 0)
+            printk("gpio_direction(%d) failed!\n",gpio);
 
+    }
+    else{
+        result = gpio_direction_input(gpio);
+        if (result != 0)
+            printk("gpio_direction(%d) failed!\n",gpio);
+    }
+}
 
 
 /* Must be called with ts->lock held */
@@ -1359,6 +1377,9 @@ static int ads7846_probe(struct spi_device *spi)
     beep_timer.expires = jiffies + HZ/10 ;
   	add_timer(&beep_timer);
 #endif
+
+    /*µ××ù°´Å¥ ÊäÈë*/
+  	initPinOut(GPIO_TO_PIN(0,20),false,"Bottom Button",1);
 
  	/*
 	 * We'd set TX word size 8 bits and RX word size to 13 bits ... except
