@@ -386,6 +386,12 @@ void initTimer(void)
 
 }
 
+static 	int input_keypad_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
+{
+    //printk("type: %d\t code: %d\t value: %d\n",type,code,value);
+    knobTrigger = 1;
+    return 0;
+}
 
 
 static char __initdata banner[] = "SZHCAM335x  Keypad, (c) 2014 SZHC\n";
@@ -432,6 +438,7 @@ static int __init szhc_keypad_init(void)
     for(i=0;i<3;i++)
         __set_bit(pulley[i],button_dev->keybit);
 
+    button_dev->event = input_keypad_event;//指定input_dev的event项
 
   	error = input_register_device(button_dev);
 
