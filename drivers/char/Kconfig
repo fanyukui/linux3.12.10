@@ -32,6 +32,25 @@ config ROBOT_BEEP
 	  /dev/kmem device is rarely used, but can be used for certain
 	  kind of kernel debugging operations.
 	  When in doubt, say "N".
+
+config ROBOT_KNOB
+	tristate "robot beep device support"
+	default m
+	help
+	  Say Y here if you want to support the /dev/kmem device. The
+	  /dev/kmem device is rarely used, but can be used for certain
+	  kind of kernel debugging operations.
+	  When in doubt, say "N".
+	  
+config ROBOT_PULLERY
+	tristate "robot beep device support"
+	default m
+	help
+	  Say Y here if you want to support the /dev/kmem device. The
+	  /dev/kmem device is rarely used, but can be used for certain
+	  kind of kernel debugging operations.
+	  When in doubt, say "N".
+	  
 	  	  
 config DEVKMEM
 	bool "/dev/kmem virtual device support"
