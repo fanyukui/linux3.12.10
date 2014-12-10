@@ -106,6 +106,10 @@ struct SZHC_Buttons_dev
 #endif
 };
 
+
+void timer_handler (unsigned long);
+
+
 struct SZHC_Buttons_dev *szhc_buttons_dev;
 static int buzzer = 0;
 static char __initdata banner[] = "SZHCAM335x  Keypad, (c) 2014 SZHC\n";
@@ -113,6 +117,7 @@ static char __initdata banner[] = "SZHCAM335x  Keypad, (c) 2014 SZHC\n";
 #define Beep_On()   do {gpio_set_value(GPIO_TO_PIN(1,19), 1); } while(0)
 #define Beep_Off()  do {gpio_set_value(GPIO_TO_PIN(1,19), 0); } while(0)
 #define Do_Nothing()   do { } while (0)
+#define KEYBOARD_DEBUG
 
 #ifdef ADD_BUZZER_WHIT_BUTTON
 
@@ -172,7 +177,6 @@ static void initKeyPad (void)
 
 static void initConfig (void)
 {
-
 	int row, column;
 
 	/*配置模式 */
@@ -200,6 +204,13 @@ static void initConfig (void)
 
 	/*初始化KeyPad值 */
 	initKeyPad ();
+
+    //初始化定时器
+    init_timer (&szhc_buttons_dev->s_timer);
+	szhc_buttons_dev->s_timer.function = timer_handler;
+	szhc_buttons_dev->s_timer.expires = jiffies + HZ;
+
+	add_timer (&szhc_buttons_dev->s_timer);
 
 }
 
@@ -239,8 +250,10 @@ void timer_handler (unsigned long arg)
 					check_times[row][col] = 0;
 					rowNum = row;
 					colomnNum = col;
-					printk ("row: %d\tcolumn:%d\tkey value: %d \t pressed!\n",
+#ifdef KEYBOARD_DEBUG
+					printk ("row: %d\tcolumn:%d\tkey value: %3d \t pressed!\n",
                            row, col, keypad[row][col]);
+#endif
 				}
 				goto finished;
 				//input_sync(button_dev);
@@ -250,8 +263,10 @@ void timer_handler (unsigned long arg)
                && gpio_get_value (rowtable[rowNum])
                && szhc_buttons_dev->isPressed)
 			{
-				printk ("row: %d\tcolumn:%d\tkey value: %d \t released!\n",
-                       row, col, keypad[row][col]);
+#ifdef KEYBOARD_DEBUG
+				printk ("row: %d\tcolumn:%d\tkey value: %3d \t released!\n",
+                        row, col, keypad[row][col]);
+#endif
 				szhc_buttons_dev->isPressed = 0;
 				Beep_Off ();
 				goto finished;
@@ -274,18 +289,12 @@ void timer_handler (unsigned long arg)
 
 int SZHC_Buttons_open (struct inode *inode, struct file *file)
 {
-	unsigned long j = jiffies;
-	init_timer (&szhc_buttons_dev->s_timer);
-	szhc_buttons_dev->s_timer.function = timer_handler;
-	szhc_buttons_dev->s_timer.expires = j + HZ;
 
-	add_timer (&szhc_buttons_dev->s_timer);
 	return 0;
 }
 
 int SZHC_Buttons_release (struct inode *inode, struct file *filp)
 {
-	del_timer (&szhc_buttons_dev->s_timer);
 	return 0;
 }
 
@@ -303,9 +312,7 @@ ssize_t SZHC_Buttons_read (struct file * filp, char __user * buf, size_t count, 
 		}
 		else
 		{
-			printk ("**SZHC_Buttons_read wait_event**\n");
 			wait_event (szhc_buttons_dev->waitQueue, szhc_buttons_dev->isPressed);
-			printk ("**SZHC_Buttons_read wait_event out**\n");
 		}
 	}
 	memset (data, 0, count);
@@ -315,13 +322,11 @@ ssize_t SZHC_Buttons_read (struct file * filp, char __user * buf, size_t count, 
 	{
 		return -1;
 	}
-
-	printk ("SZHC_Buttons_read data: %s \n", data);
 	if (copy_to_user (buf, data, count) != 0)
 	{
 		return -EFAULT;
 	}
-	szhc_buttons_dev->isPressed = 0;
+//	szhc_buttons_dev->isPressed = 0;
 	return count;
 }
 
@@ -388,6 +393,7 @@ static int __init SZHC_Buttons_init (void)
 
 static void __exit SZHC_Buttons_exit (void)
 {
+	del_timer (&szhc_buttons_dev->s_timer);
 	kfree (szhc_buttons_dev);
 	unregister_chrdev (SZHC_BUTTON_MAJOR, DEVICE_NAME);
 	device_destroy (szhc_buttons_class, MKDEV (SZHC_BUTTON_MAJOR, 0));

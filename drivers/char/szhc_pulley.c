@@ -33,7 +33,7 @@ typedef struct _PULLEY_DATA{
 } PULLEY_DATA;
 
 typedef struct _PULLEY_TEMP{
-    int  forward;;
+    int  forward;
     int  count;
 } PULLEY_TEMP;
 
@@ -82,9 +82,11 @@ static ssize_t szhc_pulley_read (struct file *filp, char __user * buf, size_t co
 
     if (copy_to_user (buf, &temp,sizeof(temp))!= 0)
 	{
+	    printk("copy to user failed\n");
 		return -EFAULT;
 	}
    	atomic_set(&pulley_dev->data.count ,0);
+    pulley_dev->isChanged = 0;
 
     return sizeof(PULLEY_TEMP);
 }
@@ -92,7 +94,7 @@ static ssize_t szhc_pulley_read (struct file *filp, char __user * buf, size_t co
 irqreturn_t irq_handler (int irqno, void *dev_id)
 {
 
-	if (gpio_get_value (GPIO_TO_PIN (2, 4)))
+	if (gpio_get_value (GPIO_TO_PIN(2,4)))
 	{
 	    if(cycleFlag){
             cycleCount ++;
@@ -102,7 +104,7 @@ irqreturn_t irq_handler (int irqno, void *dev_id)
         }
 		atomic_set(&pulley_dev->data.forward ,1);
    		atomic_set(&pulley_dev->data.count ,cycleCount);
-
+        printk("****UP****\n");
    	    cycleFlag  = 1;
 
 	}
@@ -116,6 +118,7 @@ irqreturn_t irq_handler (int irqno, void *dev_id)
         }
 		atomic_set(&pulley_dev->data.forward ,0);
    		atomic_set(&pulley_dev->data.count ,cycleCount);
+        printk("****DOWN****\n");
 	    cycleFlag  = 0;
 	}
     pulley_dev->isChanged = 1;
@@ -130,13 +133,39 @@ static struct file_operations szhc_pulley_fops = {
 	.read = szhc_pulley_read,
 };
 
+static void initPinOut(unsigned int gpio,bool isOut,char *label,unsigned int high)
+{
+    int result;
+    /* Allocating GPIOs and setting direction */
+    result = gpio_request(gpio, label);//usr1
+    if (result != 0)
+        printk("gpio_request(%d) failed!\n",gpio);
+    if(isOut){
+        result = gpio_direction_output(gpio,high);
+        if (result != 0)
+            printk("gpio_direction(%d) failed!\n",gpio);
+
+    }
+    else{
+        result = gpio_direction_input(gpio);
+        if (result != 0)
+            printk("gpio_direction(%d) failed!\n",gpio);
+    }
+
+}
 static void initConfig (void)
 {
 	int irq, ret;
-	gpio_set_debounce (GPIO_TO_PIN (2, 3), PULLEY_DELAY);
+
+     /*πˆ¬÷  ‰»Î*/
+    initPinOut(GPIO_TO_PIN(2,1),false,"pulley",0);
+    initPinOut(GPIO_TO_PIN(2,3),false,"pulley",0);  /*÷–∂œø⁄*/
+    initPinOut(GPIO_TO_PIN(2,4),false,"pulley",0);
+
+	gpio_set_debounce (GPIO_TO_PIN(2,3), PULLEY_DELAY);
 
 	/*…Í«Î÷–∂œ */
-	irq = gpio_to_irq (GPIO_TO_PIN (2, 3));
+	irq = gpio_to_irq (GPIO_TO_PIN(2,3));
 	if (irq < 0)
 	{
 		printk ("GPIO_TO_PIN(2, 3) irq  failed !\n");

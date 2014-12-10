@@ -40,9 +40,9 @@ static struct SZHC_Knob_dev *knob_dev;
 
 static unsigned long ioTable[] = {
 
-	GPIO_TO_PIN (2, 0),
-	GPIO_TO_PIN (2, 5),
-	GPIO_TO_PIN (2, 2),
+	GPIO_TO_PIN(2,0),
+	GPIO_TO_PIN(2,5),
+	GPIO_TO_PIN(2,2),
 };
 
 static void timer_handler (unsigned long arg)
@@ -59,7 +59,8 @@ static void timer_handler (unsigned long arg)
 		--leftMove;
 	}
 
-	if (keyValue != knob_dev->keyValue.counter)
+	if (keyValue != knob_dev->keyValue.counter
+        && keyValue  != 7)
 	{
 		printk ("**atomic_set keyValue=%d**\n", keyValue);
 		atomic_set (&knob_dev->keyValue, keyValue);
@@ -95,24 +96,28 @@ static void initPinOut (unsigned int gpio, bool isOut, char *label,
 
 }
 
-static int szhc_knob_open (struct inode *inode, struct file *file)
+void initConfig(void)
 {
 	/*旋钮 输入 */
-	initPinOut (GPIO_TO_PIN (2, 0), false, "Knob", 0);	//停止
-	initPinOut (GPIO_TO_PIN (2, 5), false, "Knob", 0);	//自动 低电平有效
-	initPinOut (GPIO_TO_PIN (2, 2), false, "Knob", 0);	//手动
+	initPinOut (GPIO_TO_PIN(2,0), false, "Knob", 0);	//停止
+	initPinOut (GPIO_TO_PIN(2,5), false, "Knob", 0);	//自动 低电平有效
+	initPinOut (GPIO_TO_PIN(2,2), false, "Knob", 0);	//手动
 
 	init_timer (&knob_dev->s_timer);
 	knob_dev->s_timer.function = timer_handler;
 	knob_dev->s_timer.expires = jiffies + HZ;
 
 	add_timer (&knob_dev->s_timer);
+}
+
+static int szhc_knob_open (struct inode *inode, struct file *file)
+{
+
 	return 0;
 }
 
 static int szhc_knob_close (struct inode *inode, struct file *file)
 {
-	del_timer (&knob_dev->s_timer);
 	return 0;
 }
 
@@ -138,13 +143,13 @@ static ssize_t szhc_knob_read (struct file *filp, char __user * buf,
 	keyValue = atomic_read (&knob_dev->keyValue);
 	switch (keyValue)
 	{
-	case 6:
+	case 1:
 		keyValue = 1;
 		break;
-	case 3:
-		keyValue = 4;
+	case 5:
+		keyValue = 5;
 		break;
-	case 1:
+	case 6:
 		keyValue = 6;
 		break;
 	default:
@@ -227,17 +232,20 @@ static int __init szhc_knob_init (void)
 	//创建一个设备节点,节点名为 DEVICE_NAME
 	device_create (knob_class, NULL, MKDEV (KNOB_MAJOR, 0), NULL, DEVICE_NAME);
 
+    initConfig();
 	return 0;
 }
 
 static void __exit szhc_knob_exit (void)
 {
+   	del_timer (&knob_dev->s_timer);
 	printk ("**begin exit(drivers/char/szhc_knob.c)**\n");
 	kfree (knob_dev);
 	unregister_chrdev (KNOB_MAJOR, DEVICE_NAME);
 	device_destroy (knob_class, MKDEV (KNOB_MAJOR, 0));
 	class_destroy (knob_class);
 	printk ("**end exit(drivers/char/szhc_knob.c)**\n");
+
 }
 
 //删掉设备节点
