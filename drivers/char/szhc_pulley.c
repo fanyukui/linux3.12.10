@@ -24,7 +24,7 @@ COPYRIGHT:SZHC
 #define DEVICE_NAME "szhc_pulley"
 #define pulley_MAJOR 240		/* Ö÷Éè±¸ºÅ */
 #define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
-#define PULLEY_DELAY 200
+#define PULLEY_DELAY    600
 
 
 typedef struct _PULLEY_DATA{

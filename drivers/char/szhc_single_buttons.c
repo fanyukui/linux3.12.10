@@ -44,14 +44,14 @@ COPYRIGHT:SZHC
 /*Module Control ¼Ä´æÆ÷*/
 #define AM335X_CTRL_BASE			0x44E10000
 
-#define CONTROL_PADCONF_GPMC_CSN0                 0x087C
-#define CONTROL_PADCONF_MCASP0_AHCLKX             0x09AC
-#define CONTROL_PADCONF_EMU0                      0x09E4
-#define CONTROL_PADCONF_EMU1                      0x09E8
-#define CONTROL_PADCONF_MCASP0_ACLKR              0x09A0
-#define CONTROL_PADCONF_XDMA_EVENT_INTR0          0x09B0
-#define CONTROL_PADCONF_USB0_DRVVBUS              0x0A1C
-#define CONTROL_PADCONF_USB1_DRVVBUS              0x0A34
+#define GPIO_1_29        0x087C
+#define GPIO_3_21        0x09AC
+#define GPIO_3_7         0x09E4
+#define GPIO_3_8         0x09E8
+#define GPIO_3_18        0x09A0
+#define GPIO_0_19        0x09B0
+#define GPIO_0_18        0x0A1C
+#define GPIO_3_13        0x0A34
 
 /*Ä£Ê½ÅäÖÃ*/
 #define MUX_VAL(OFFSET,VALUE)\
@@ -62,14 +62,15 @@ COPYRIGHT:SZHC
 
 /*Ä£Ê½ÅäÖÃ*/
 #define MUX_EVM() \
-    MUX_VAL(CONTROL_PADCONF_GPMC_CSN0, (IEN | PU | MODE7 )) /* gpio2[1] */\
-    MUX_VAL(CONTROL_PADCONF_MCASP0_AHCLKX, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */\
-    MUX_VAL(CONTROL_PADCONF_EMU0, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */\
-    MUX_VAL(CONTROL_PADCONF_EMU1, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */\
-    MUX_VAL(CONTROL_PADCONF_MCASP0_ACLKR, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */\
-    MUX_VAL(CONTROL_PADCONF_XDMA_EVENT_INTR0, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */  \
-    MUX_VAL(CONTROL_PADCONF_USB0_DRVVBUS, (IEN | PU | MODE7 )) /* timer7_mux3(GPIO2_3) */   \
-    MUX_VAL(CONTROL_PADCONF_USB1_DRVVBUS, (IEN | PU | MODE7 ))	/* timer7_mux3(GPIO2_3) */
+    MUX_VAL(GPIO_1_29, (IEN | PU | MODE7 )) \
+    MUX_VAL(GPIO_3_21, (IEN | PU | MODE7 )) \
+    MUX_VAL(GPIO_3_7, (IEN | PU | MODE7 )) \
+    MUX_VAL(GPIO_3_8, (IEN | PU | MODE7 )) \
+    MUX_VAL(GPIO_3_18, (IEN | PU | MODE7 )) \
+    MUX_VAL(GPIO_0_19, (IEN | PU | MODE7 ))   \
+    MUX_VAL(GPIO_0_18, (IEN | PU | MODE7 ))  \
+    MUX_VAL(GPIO_3_13, (IEN | PU | MODE7 ))
+
 
 #define ADD_BUZZER_WHIT_BUTTON
 
