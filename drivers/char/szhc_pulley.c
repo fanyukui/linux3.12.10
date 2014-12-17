@@ -27,21 +27,12 @@ COPYRIGHT:SZHC
 #define PULLEY_DELAY    600
 
 
-typedef struct _PULLEY_DATA{
-    atomic_t  forward;;
-    atomic_t  count;
-} PULLEY_DATA;
-
-typedef struct _PULLEY_TEMP{
-    int  forward;
-    int  count;
-} PULLEY_TEMP;
 
 struct SZHC_Pulley_dev
 {
 	wait_queue_head_t waitQueue;
   	int isChanged;
-	PULLEY_DATA data;
+	atomic_t data;
 };
 
 
@@ -49,8 +40,6 @@ struct SZHC_Pulley_dev
 static struct SZHC_Pulley_dev *pulley_dev;
 static char __initdata banner[] = "AM335x pulley (c)2014 SZHC\n";
 static struct class *pulley_class;
-static int cycleCount = 0;
-static int cycleFlag = 0;
 
 static int szhc_pulley_open (struct inode *inode, struct file *file)
 {
@@ -66,7 +55,7 @@ static int szhc_pulley_close (struct inode *inode, struct file *file)
 
 static ssize_t szhc_pulley_read (struct file *filp, char __user * buf, size_t count, loff_t * offp)
 {
-    PULLEY_TEMP temp;
+    char temp;
 
 	if (filp->f_flags & O_NONBLOCK)
 	{
@@ -77,18 +66,16 @@ static ssize_t szhc_pulley_read (struct file *filp, char __user * buf, size_t co
 		wait_event (pulley_dev->waitQueue, pulley_dev->isChanged);
 	}
 
-    temp.count = atomic_read(&pulley_dev->data.count);
-    temp.forward = atomic_read(&pulley_dev->data.forward);
-
+    temp = atomic_read(&pulley_dev->data);
     if (copy_to_user (buf, &temp,sizeof(temp))!= 0)
 	{
 	    printk("copy to user failed\n");
 		return -EFAULT;
 	}
-   	atomic_set(&pulley_dev->data.count ,0);
+
     pulley_dev->isChanged = 0;
 
-    return sizeof(PULLEY_TEMP);
+    return sizeof(temp);
 }
 
 irqreturn_t irq_handler (int irqno, void *dev_id)
@@ -96,30 +83,13 @@ irqreturn_t irq_handler (int irqno, void *dev_id)
 
 	if (gpio_get_value (GPIO_TO_PIN(2,4)))
 	{
-	    if(cycleFlag){
-            cycleCount ++;
-        }
-        else{
-            cycleCount = 1;
-        }
-		atomic_set(&pulley_dev->data.forward ,1);
-   		atomic_set(&pulley_dev->data.count ,cycleCount);
+		atomic_set(&pulley_dev->data ,1);
         printk("****UP****\n");
-   	    cycleFlag  = 1;
-
 	}
 	else
 	{
-		if( cycleFlag == 0 ){
-            cycleCount ++;
-        }
-        else{
-            cycleCount = 1;
-        }
-		atomic_set(&pulley_dev->data.forward ,0);
-   		atomic_set(&pulley_dev->data.count ,cycleCount);
+        atomic_set(&pulley_dev->data ,-1);
         printk("****DOWN****\n");
-	    cycleFlag  = 0;
 	}
     pulley_dev->isChanged = 1;
     wake_up(&pulley_dev->waitQueue);
