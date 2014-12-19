@@ -144,13 +144,13 @@ static ssize_t szhc_knob_read (struct file *filp, char __user * buf,
 	switch (keyValue)
 	{
 	case 1:
-		keyValue = 1;
+		keyValue = 81;
 		break;
 	case 5:
-		keyValue = 5;
+		keyValue = 85;
 		break;
 	case 6:
-		keyValue = 6;
+		keyValue = 86;
 		break;
 	default:
 		keyValue = 0;

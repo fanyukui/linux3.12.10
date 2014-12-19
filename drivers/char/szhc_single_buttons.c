@@ -403,7 +403,7 @@ static void __exit SZHC_Buttons_exit (void)
 #endif
 
     //free gpio
-    gpio_free(GPIO_TO_PIN(1,19);
+    gpio_free(GPIO_TO_PIN(1,19));
 	for (row = 0; row < RowCount; row++)
 	{
 		gpio_free (rowtable[row]);
