@@ -113,7 +113,7 @@ void timer_handler (unsigned long);
 
 struct SZHC_Buttons_dev *szhc_buttons_dev;
 static int buzzer = 0;
-static char __initdata banner[] = "SZHCAM335x  Keypad, (c) 2014 SZHC\n";
+static char __initdata banner[] = "SZHCAM335x  SingleButton, (c) 2014 SZHC\n";
 
 #define Beep_On()   do {gpio_set_value(GPIO_TO_PIN(1,19), 1); } while(0)
 #define Beep_Off()  do {gpio_set_value(GPIO_TO_PIN(1,19), 0); } while(0)
@@ -394,7 +394,24 @@ static int __init SZHC_Buttons_init (void)
 
 static void __exit SZHC_Buttons_exit (void)
 {
+    int row,column;
+
+    //free timers
 	del_timer (&szhc_buttons_dev->s_timer);
+#ifdef ADD_BUZZER_WHIT_BUTTON
+	del_timer (&szhc_buttons_dev->b_timer);
+#endif
+
+    //free gpio
+    gpio_free(GPIO_TO_PIN(1,19);
+	for (row = 0; row < RowCount; row++)
+	{
+		gpio_free (rowtable[row]);
+	}
+	for (column = 0; column < ColumnCount; column++)
+	{
+	 	gpio_free (columtable[column]);
+	}
 	kfree (szhc_buttons_dev);
 	unregister_chrdev (SZHC_BUTTON_MAJOR, DEVICE_NAME);
 	device_destroy (szhc_buttons_class, MKDEV (SZHC_BUTTON_MAJOR, 0));
