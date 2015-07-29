@@ -35,7 +35,8 @@ scm_version()
 
 	cd "$srctree"
 	if test -e .scmversion; then
-		date "+%Y.%m.%d" > .scmversion
+        echo "2014.11.25" > .scmversion
+		#date "+%Y.%m.%d" > .scmversion
 		echo -n "-"
 		cat .scmversion
 		return
